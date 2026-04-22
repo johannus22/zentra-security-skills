@@ -1,0 +1,35 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "edward",
+  "metadata": {
+    "description": "Security penetration testing for Claude Code. OWASP Top 10 static analysis and dynamic validation with Playwright."
+  },
+  "owner": {
+    "name": "Rafael",
+    "email": "rafael@kodecraft.dev"
+  },
+  "plugins": [
+    {
+      "name": "edward",
+      "source": "./",
+      "description": "Security penetration testing agent for Claude Code. Static analysis for OWASP Top 10 vulnerabilities plus dynamic validation with Playwright MCP.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Rafael",
+        "email": "rafael@kodecraft.dev"
+      },
+      "category": "security",
+      "homepage": "https://github.com/Kodecraft-Dev/edward",
+      "tags": [
+        "security",
+        "penetration-testing",
+        "owasp",
+        "sast",
+        "dast",
+        "vulnerability-scanner",
+        "playwright"
+      ],
+      "strict": false
+    }
+  ]
+}

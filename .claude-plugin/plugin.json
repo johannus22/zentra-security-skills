@@ -1,0 +1,22 @@
+{
+  "name": "edward",
+  "description": "Security penetration testing agent for Claude Code. Static analysis for OWASP Top 10 vulnerabilities plus dynamic validation with Playwright MCP.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Rafael",
+    "email": "rafael@kodecraft.dev"
+  },
+  "homepage": "https://github.com/Kodecraft-Dev/edward",
+  "repository": "https://github.com/Kodecraft-Dev/edward",
+  "license": "MIT",
+  "keywords": [
+    "security",
+    "penetration-testing",
+    "owasp",
+    "static-analysis",
+    "dynamic-testing",
+    "vulnerability-scanner",
+    "playwright",
+    "appsec"
+  ]
+}
