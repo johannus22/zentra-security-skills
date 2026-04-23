@@ -7,7 +7,7 @@
     "playwright": {
       "type": "local",
       "command": ["npx", "@playwright/mcp@latest"],
-      "description": "Browser automation for edward-pentester dynamic testing"
+      "description": "Browser automation for zentra-pentester dynamic testing"
     }
   }
 }

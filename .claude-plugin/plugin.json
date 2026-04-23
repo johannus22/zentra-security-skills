@@ -1,13 +1,13 @@
 {
-  "name": "edward",
+  "name": "zentra",
   "description": "Complete cybersecurity framework for Claude Code. 10 skills covering threat modeling, SAST, DAST, infrastructure scanning, supply chain analysis, API security, auto-remediation, compliance mapping, executive reporting, and development-phase security guard.",
   "version": "2.1.0",
   "author": {
     "name": "Rafael",
     "email": "rafael@kodecraft.dev"
   },
-  "homepage": "https://github.com/Kodecraft-Dev/edward",
-  "repository": "https://github.com/Kodecraft-Dev/edward",
+  "homepage": "https://github.com/Kodecraft-Dev/zentra",
+  "repository": "https://github.com/Kodecraft-Dev/zentra",
   "license": "MIT",
   "keywords": [
     "security",

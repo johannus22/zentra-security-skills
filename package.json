@@ -1,5 +1,5 @@
 {
-  "name": "edward-security",
+  "name": "zentra-security",
   "version": "2.1.0",
   "description": "Complete cybersecurity framework for AI coding agents. 10 skills: threat modeling, SAST, DAST, IaC scanning, SCA, API security, auto-remediation, compliance mapping, and executive reporting.",
   "keywords": [
@@ -9,7 +9,7 @@
     "owasp",
     "sast",
     "dast",
-    "sca",
+    "scan",
     "threat-modeling",
     "compliance",
     "devsecops",
@@ -21,17 +21,17 @@
     "appsec"
   ],
   "author": {
-    "name": "Rafael",
+    "name": "Rafael Masilungan",
     "email": "rafael@kodecraft.dev"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Kodecraft-Dev/edward.git"
+    "url": "https://github.com/Kodecraft-Dev/zentra.git"
   },
-  "homepage": "https://github.com/Kodecraft-Dev/edward",
+  "homepage": "https://github.com/Kodecraft-Dev/zentra",
   "bugs": {
-    "url": "https://github.com/Kodecraft-Dev/edward/issues"
+    "url": "https://github.com/Kodecraft-Dev/zentra/issues"
   },
   "files": [
     "skills/",

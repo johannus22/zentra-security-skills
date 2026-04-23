@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "edward",
+  "name": "zentra",
   "metadata": {
     "description": "Complete cybersecurity framework for Claude Code. Threat modeling, SAST, DAST, infrastructure scanning, supply chain analysis, API security, auto-remediation, compliance mapping, and executive reporting."
   },
@@ -10,7 +10,7 @@
   },
   "plugins": [
     {
-      "name": "edward",
+      "name": "zentra",
       "source": "./",
       "description": "Complete cybersecurity framework for Claude Code. 10 skills covering the full security lifecycle from threat modeling through compliance reporting.",
       "version": "2.1.0",
@@ -19,7 +19,7 @@
         "email": "rafael@kodecraft.dev"
       },
       "category": "security",
-      "homepage": "https://github.com/Kodecraft-Dev/edward",
+      "homepage": "https://github.com/Kodecraft-Dev/zentra",
       "tags": [
         "security",
         "cybersecurity",
