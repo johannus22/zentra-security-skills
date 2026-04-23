@@ -17,6 +17,7 @@ threat-model -> code-recon -+
 
 | Command | Phase | Description |
 |---------|-------|-------------|
+| `/zentra-pipeline` | Orchestrate | Full pipeline — spawns isolated subagents per phase |
 | `/zentra-threat-model` | Pre-scan | STRIDE analysis, attack surface mapping |
 | `/zentra-code-recon` | Scan | OWASP Top 10 static analysis (SAST) |
 | `/zentra-iac-scan` | Scan | Docker, Terraform, K8s, CI/CD security |
