@@ -1,0 +1,44 @@
+{
+  "name": "edward-security",
+  "version": "2.1.0",
+  "description": "Complete cybersecurity framework for AI coding agents. 10 skills: threat modeling, SAST, DAST, IaC scanning, SCA, API security, auto-remediation, compliance mapping, and executive reporting.",
+  "keywords": [
+    "security",
+    "cybersecurity",
+    "penetration-testing",
+    "owasp",
+    "sast",
+    "dast",
+    "sca",
+    "threat-modeling",
+    "compliance",
+    "devsecops",
+    "opencode",
+    "opencode-plugin",
+    "claude-code",
+    "claude-code-plugin",
+    "ai-agent",
+    "appsec"
+  ],
+  "author": {
+    "name": "Rafael",
+    "email": "rafael@kodecraft.dev"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kodecraft-Dev/edward.git"
+  },
+  "homepage": "https://github.com/Kodecraft-Dev/edward",
+  "bugs": {
+    "url": "https://github.com/Kodecraft-Dev/edward/issues"
+  },
+  "files": [
+    "skills/",
+    ".opencode/",
+    "opencode.json",
+    "AGENTS.md",
+    "README.md",
+    "LICENSE"
+  ]
+}
