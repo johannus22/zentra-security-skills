@@ -1,6 +1,6 @@
-# Edward — Security Framework
+# Zentra — Security Skills
 
-Edward is a cybersecurity framework with 10 specialized skills. Use the `/edward` command to see pipeline status and available skills.
+Zentra is a cybersecurity framework with 10 specialized skills. Use the `/zentra` command to see pipeline status and available skills.
 
 ## Pipeline
 
@@ -11,22 +11,22 @@ threat-model -> code-recon -+
                api-scan ----+
 ```
 
-`edward-dev` runs independently during development.
+`zentra-dev` runs independently during development.
 
 ## Available Skills
 
 | Command | Phase | Description |
 |---------|-------|-------------|
-| `/edward-threat-model` | Pre-scan | STRIDE analysis, attack surface mapping |
-| `/edward-code-recon` | Scan | OWASP Top 10 static analysis (SAST) |
-| `/edward-iac-scan` | Scan | Docker, Terraform, K8s, CI/CD security |
-| `/edward-supply-chain` | Scan | CVEs, transitive deps, typosquatting (SCA) |
-| `/edward-api-scan` | Scan | OWASP API Top 10, OpenAPI, GraphQL |
-| `/edward-pentester` | Validate | Dynamic testing against live targets (DAST) |
-| `/edward-remediate` | Fix | Auto-patch generation with approval |
-| `/edward-compliance` | Audit | SOC 2, PCI-DSS, HIPAA, GDPR, ISO 27001 |
-| `/edward-report` | Report | Executive summary, risk scoring, trends |
-| `/edward-dev` | Dev | Lightweight guard for changed files |
+| `/zentra-threat-model` | Pre-scan | STRIDE analysis, attack surface mapping |
+| `/zentra-code-recon` | Scan | OWASP Top 10 static analysis (SAST) |
+| `/zentra-iac-scan` | Scan | Docker, Terraform, K8s, CI/CD security |
+| `/zentra-supply-chain` | Scan | CVEs, transitive deps, typosquatting (SCA) |
+| `/zentra-api-scan` | Scan | OWASP API Top 10, OpenAPI, GraphQL |
+| `/zentra-pentester` | Validate | Dynamic testing against live targets (DAST) |
+| `/zentra-remediate` | Fix | Auto-patch generation with approval |
+| `/zentra-compliance` | Audit | SOC 2, PCI-DSS, HIPAA, GDPR, ISO 27001 |
+| `/zentra-report` | Report | Executive summary, risk scoring, trends |
+| `/zentra-dev` | Dev | Lightweight guard for changed files |
 
 ## Safety
 
@@ -35,4 +35,4 @@ threat-model -> code-recon -+
 - Dynamic testing requires authorization before execution
 - Credentials in memory only — never written to files
 - Destructive operations (DELETE, DROP) prohibited during pentesting
-- `.edward/` automatically excluded from version control
+- `.zentra/` automatically excluded from version control

@@ -1,6 +1,6 @@
-# Edward
+# Zentra
 
-Complete cybersecurity framework for AI coding agents. Edward provides 10 specialized security skills covering the full lifecycle — from threat modeling and static analysis through dynamic validation, auto-remediation, compliance mapping, and executive reporting.
+Complete cybersecurity framework for AI coding agents. Zentra provides 10 specialized security skills covering the full lifecycle — from threat modeling and static analysis through dynamic validation, auto-remediation, compliance mapping, and executive reporting.
 
 **Supported platforms:** [Claude Code](https://claude.ai/code) · [OpenCode](https://opencode.ai)
 
@@ -13,7 +13,7 @@ threat-model -> code-recon -+
                api-scan ----+
 ```
 
-`edward-dev` runs independently during development.
+`zentra-dev` runs independently during development.
 
 ## Skills
 
@@ -21,54 +21,54 @@ threat-model -> code-recon -+
 
 | Skill | Phase | Description |
 |-------|-------|-------------|
-| `/edward-threat-model` | Pre-scan | STRIDE analysis, attack surface mapping, trust boundaries |
-| `/edward-code-recon` | Scan | OWASP Top 10 static analysis (SAST) |
-| `/edward-iac-scan` | Scan | Docker, Terraform, K8s, CI/CD security |
-| `/edward-supply-chain` | Scan | CVEs, transitive deps, typosquatting, license risk (SCA) |
-| `/edward-api-scan` | Scan | OWASP API Top 10, OpenAPI, GraphQL analysis |
-| `/edward-pentester` | Validate | Dynamic testing against live targets (DAST) |
-| `/edward-remediate` | Fix | Auto-patch generation with user approval |
-| `/edward-compliance` | Audit | SOC 2, PCI-DSS, HIPAA, GDPR, ISO 27001 mapping |
-| `/edward-report` | Report | Executive summary, risk scoring, trends |
+| `/zentra-threat-model` | Pre-scan | STRIDE analysis, attack surface mapping, trust boundaries |
+| `/zentra-code-recon` | Scan | OWASP Top 10 static analysis (SAST) |
+| `/zentra-iac-scan` | Scan | Docker, Terraform, K8s, CI/CD security |
+| `/zentra-supply-chain` | Scan | CVEs, transitive deps, typosquatting, license risk (SCA) |
+| `/zentra-api-scan` | Scan | OWASP API Top 10, OpenAPI, GraphQL analysis |
+| `/zentra-pentester` | Validate | Dynamic testing against live targets (DAST) |
+| `/zentra-remediate` | Fix | Auto-patch generation with user approval |
+| `/zentra-compliance` | Audit | SOC 2, PCI-DSS, HIPAA, GDPR, ISO 27001 mapping |
+| `/zentra-report` | Report | Executive summary, risk scoring, trends |
 
 ### Standalone
 
 | Skill | Description |
 |-------|-------------|
-| `/edward-dev` | Lightweight dev-phase guard — scans changed files, inline feedback |
+| `/zentra-dev` | Lightweight dev-phase guard — scans changed files, inline feedback |
 
 ## Quick Start
 
 ### Full Pipeline
 
 ```
-1. /edward-threat-model        # Understand the attack surface
-2. /edward-code-recon           # Static analysis (offers to run parallel scanners)
-3. /edward-pentester            # Validate against running app
-4. /edward-remediate            # Auto-fix vulnerabilities
-5. /edward-compliance           # Map to regulatory frameworks
-6. /edward-report               # Executive summary
+1. /zentra-threat-model        # Understand the attack surface
+2. /zentra-code-recon           # Static analysis (offers to run parallel scanners)
+3. /zentra-pentester            # Validate against running app
+4. /zentra-remediate            # Auto-fix vulnerabilities
+5. /zentra-compliance           # Map to regulatory frameworks
+6. /zentra-report               # Executive summary
 ```
 
 ### During Development
 
 ```
-/edward-dev                     # Scan changed files before committing
+/zentra-dev                     # Scan changed files before committing
 ```
 
 ### Skip Ahead
 
 Every skill can run independently. Start wherever makes sense:
-- Just want SAST? Run `/edward-code-recon`
-- Just need compliance? Run scanners first, then `/edward-compliance`
-- Just want to fix things? Run `/edward-remediate` after any scanner
+- Just want SAST? Run `/zentra-code-recon`
+- Just need compliance? Run scanners first, then `/zentra-compliance`
+- Just want to fix things? Run `/zentra-remediate` after any scanner
 
 ## Output Structure
 
-All pipeline skills write to `.edward/` (automatically added to `.gitignore`):
+All pipeline skills write to `.zentra/` (automatically added to `.gitignore`):
 
 ```
-.edward/
+.zentra/
 ├── config.json                  # Shared state across skills
 ├── scan-summary.md              # Unified findings summary
 ├── detailed-findings.md         # All findings with evidence
@@ -97,12 +97,12 @@ All pipeline skills write to `.edward/` (automatically added to `.gitignore`):
     └── executive-summary.md     # Board-ready report
 ```
 
-`edward-dev` outputs inline — no files created.
+`zentra-dev` outputs inline — no files created.
 
 ## Prerequisites
 
 - **Claude Code** with plugin support — OR — **OpenCode** v0.1+
-- **Playwright MCP** (for `/edward-pentester`): `npx @playwright/mcp@latest`
+- **Playwright MCP** (for `/zentra-pentester`): `npx @playwright/mcp@latest`
 - **Burp Suite MCP** or **Caido MCP** (optional): Passive proxy during pentesting
 
 ## Installation
@@ -111,19 +111,19 @@ All pipeline skills write to `.edward/` (automatically added to `.gitignore`):
 
 ```bash
 # Unix/macOS
-git clone https://github.com/Kodecraft-Dev/edward.git
-cd edward && bash install.sh
+git clone https://github.com/Kodecraft-Dev/zentra.git
+cd zentra && bash install.sh
 
 # Windows (PowerShell)
-git clone https://github.com/Kodecraft-Dev/edward.git
-cd edward; .\install.ps1
+git clone https://github.com/Kodecraft-Dev/zentra.git
+cd zentra; .\install.ps1
 ```
 
 ### Claude Code — From Marketplace
 
 ```
-/plugin marketplace add Kodecraft-Dev/edward
-/plugin install edward@edward
+/plugin marketplace add Kodecraft-Dev/zentra
+/plugin install zentra@zentra
 ```
 
 ### OpenCode — From npm
@@ -131,15 +131,15 @@ cd edward; .\install.ps1
 ```bash
 # Add to your project's opencode.json
 {
-  "plugin": ["edward-security"]
+  "plugin": ["zentra-security"]
 }
 ```
 
 Or install skills globally:
 
 ```bash
-git clone https://github.com/Kodecraft-Dev/edward.git
-cd edward && bash install.sh
+git clone https://github.com/Kodecraft-Dev/zentra.git
+cd zentra && bash install.sh
 ```
 
 ## Safety
@@ -150,7 +150,7 @@ cd edward && bash install.sh
 - Credentials are held in memory only, never written to files
 - Destructive operations (DELETE, DROP) are prohibited during pentesting
 - curl/nmap usage requires per-command user approval
-- `.edward/` is automatically excluded from version control
+- `.zentra/` is automatically excluded from version control
 
 ## License
 

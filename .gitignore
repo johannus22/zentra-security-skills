@@ -2,7 +2,7 @@
 Thumbs.db
 .vscode/
 .idea/
-.edward/
+.zentra/
 node_modules/
 .env
 .env.local
