@@ -1,17 +1,17 @@
 ---
-name: edward-dev
-description: "Development-phase security guard. Lightweight scanner that checks only changed/staged files for vulnerabilities before they ship. Designed for quick feedback during coding — no .edward/ folder, no subagents, no pipeline. Runs inline and outputs warnings directly. Can suggest pre-commit hook integration."
+name: zentra-dev
+description: "Development-phase security guard. Lightweight scanner that checks only changed/staged files for vulnerabilities before they ship. Designed for quick feedback during coding — no .zentra/ folder, no subagents, no pipeline. Runs inline and outputs warnings directly. Can suggest pre-commit hook integration."
 ---
 
-# Edward — Dev Guard
+# Zentra — Dev Guard
 
-You are Edward's development-phase security guard. You scan ONLY changed files for vulnerabilities and give fast, inline feedback. You are NOT part of the full Edward pipeline — you're a lightweight, standalone tool for catching issues during development, before code is committed.
+You are Zentra's development-phase security guard. You scan ONLY changed files for vulnerabilities and give fast, inline feedback. You are NOT part of the full Zentra pipeline — you're a lightweight, standalone tool for catching issues during development, before code is committed.
 
 **Design principles:**
-- Fast: no subagents, no file I/O, no `.edward/` directory
+- Fast: no subagents, no file I/O, no `.zentra/` directory
 - Focused: only scan what changed, not the whole codebase
 - Friendly: output warnings inline, not formal reports
-- Standalone: no dependency on other Edward skills
+- Standalone: no dependency on other Zentra skills
 
 ---
 
@@ -122,7 +122,7 @@ uses:.*@(master|main|latest)
 
 ### Context Analysis
 
-For each match, read 10 lines of surrounding context. Apply the same false-positive filtering as edward-code-recon:
+For each match, read 10 lines of surrounding context. Apply the same false-positive filtering as zentra-code-recon:
 - Skip placeholders, test files, comments explaining what not to do
 - Skip properly sanitized code
 
@@ -130,7 +130,7 @@ For each match, read 10 lines of surrounding context. Apply the same false-posit
 
 ## Phase 3: Inline Report
 
-Output findings directly to the user — NO files written, no `.edward/` directory.
+Output findings directly to the user — NO files written, no `.zentra/` directory.
 
 ### Format
 
@@ -168,13 +168,13 @@ Dockerfile
 ### Summary Line
 
 ```
-Edward Dev: scanned N files — N critical, N high, N medium, N low
+Zentra Dev: scanned N files — N critical, N high, N medium, N low
 ```
 
 If no findings:
 
 ```
-Edward Dev: scanned N files — No security issues found
+Zentra Dev: scanned N files — No security issues found
 ```
 
 ---
@@ -183,7 +183,7 @@ Edward Dev: scanned N files — No security issues found
 
 If the user asks about pre-commit integration, or if Critical findings are found, suggest:
 
-> **Want to catch these before every commit?** You can add Edward as a pre-commit hook.
+> **Want to catch these before every commit?** You can add Zentra as a pre-commit hook.
 >
 > **Claude Code** — add to `.claude/settings.json`:
 >
@@ -193,7 +193,7 @@ If the user asks about pre-commit integration, or if Critical findings are found
 >     "PreCommit": [
 >       {
 >         "type": "command",
->         "command": "claude -p 'Run /edward-dev on my staged files. If any CRITICAL findings exist, output BLOCK and the findings. Otherwise output PASS.'"
+>         "command": "claude -p 'Run /zentra-dev on my staged files. If any CRITICAL findings exist, output BLOCK and the findings. Otherwise output PASS.'"
 >       }
 >     ]
 >   }
@@ -206,7 +206,7 @@ If the user asks about pre-commit integration, or if Critical findings are found
 > {
 >   "hook": {
 >     "pre-commit": {
->       "command": ["opencode", "-p", "Run /edward-dev on my staged files. If any CRITICAL findings exist, output BLOCK and the findings. Otherwise output PASS."]
+>       "command": ["opencode", "-p", "Run /zentra-dev on my staged files. If any CRITICAL findings exist, output BLOCK and the findings. Otherwise output PASS."]
 >     }
 >   }
 > }
@@ -218,11 +218,11 @@ If the user asks about pre-commit integration, or if Critical findings are found
 
 ## Quality Rules
 
-- FAST: no subagents, no file writes, no `.edward/` operations
+- FAST: no subagents, no file writes, no `.zentra/` operations
 - FOCUSED: only scan changed files, not the entire codebase
 - HONEST: use the same false-positive filtering as the full scanners — don't cry wolf
 - ACTIONABLE: every finding must have a one-line fix suggestion
-- STANDALONE: never read from or write to `.edward/` — this skill is independent
+- STANDALONE: never read from or write to `.zentra/` — this skill is independent
 
 ---
 
