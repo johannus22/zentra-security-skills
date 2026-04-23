@@ -15,7 +15,7 @@ Ask the user these questions (ask all at once):
 
 1. **Target path** — the project to scan. Default: current working directory.
 2. **Exclusions** — paths to skip. Default: `node_modules/`, `vendor/`, `dist/`, `build/`, `.git/`
-3. **Phases** — which to run. Default: full pipeline. Options: `threat-model`, `scan`, `pentest`, `remediate`, `compliance`, `report`
+3. **Phases** — which to run. Default: full pipeline. Options: `threat-model`, `scan`, `pentest`, `compliance`, `report`
 
    > Note: `scan` runs all four scanners in parallel — `code-recon`, `iac-scan`, `supply-chain`, `api-scan`. Users can also specify individual scanner names to run a subset.
 
@@ -27,7 +27,7 @@ Create the `.zentra/` directory in the target project and write `config.json`:
 {
   "target": "<resolved absolute path>",
   "exclude": ["node_modules", "vendor", "dist", "build", ".git"],
-  "phases": ["threat-model", "scan", "pentest", "remediate", "compliance", "report"],
+  "phases": ["threat-model", "scan", "pentest", "compliance", "report"],
   "pipeline": true,
   "created_by": "zentra-pipeline",
   "created_at": "<ISO 8601 timestamp>",
@@ -41,7 +41,7 @@ Auto-add `.zentra/` to `.gitignore` in the target project:
 - If not present, append `.zentra/` on a new line.
 
 Announce:
-> "Running Zentra pipeline against `[target]`. Phases: threat-model → [parallel scanners] → pentester → remediate → compliance → report. Spawning isolated subagents for each phase."
+> "Running Zentra pipeline against `[target]`. Phases: threat-model → [parallel scanners] → pentester → compliance → report. Spawning isolated subagents for each phase."
 
 ---
 
@@ -99,20 +99,7 @@ Wait for completion. Report: `✓ pentester — N confirmed, N unconfirmed`
 
 ---
 
-## Phase 5: Remediate
-
-```
-Agent({
-  description: "zentra-remediate",
-  prompt: "Load and execute the zentra-remediate skill. Findings are in .zentra/detailed-findings.md in the target project. Config is at .zentra/config.json. Present each patch to the user for approval before applying."
-})
-```
-
-Wait for completion. Report: `✓ remediate — N patches applied`
-
----
-
-## Phase 6: Compliance
+## Phase 5: Compliance
 
 ```
 Agent({
@@ -125,7 +112,7 @@ Wait for completion. Report: `✓ compliance — .zentra/compliance/ written`
 
 ---
 
-## Phase 7: Report
+## Phase 6: Report
 
 ```
 Agent({
@@ -138,7 +125,7 @@ Wait for completion. Report: `✓ report — .zentra/reports/executive-summary.m
 
 ---
 
-## Phase 8: Pipeline Summary
+## Phase 7: Pipeline Summary
 
 Print the final summary:
 
@@ -158,7 +145,6 @@ Print the final summary:
   Supply Chain       ✓ done       N findings
   API Scan           ✓ done       N findings
   Pentester          ✓ done / ⚠ skipped  N confirmed / —
-  Remediate          ✓ done       N patches applied
   Compliance         ✓ done       —
   Report             ✓ done       —
 
@@ -168,14 +154,18 @@ Print the final summary:
 
 For phases that were skipped (e.g., pentester when no live URL was provided), replace `✓ done` with `⚠ skipped — <reason>` and set Findings to `—`.
 
+Then prompt the user:
+
+> **N findings remain unremediated.** Run `/zentra-remediate` to review and apply fixes with per-patch approval.
+
 ---
 
 ## Selective Pipeline
 
 If the user selected specific phases:
 - Skip unselected phases, log each as `— <phase> skipped (not selected)`
-- Always run in pipeline order — do not run remediate before scanners, do not run pentester before scanners
-- Warn if pentester, remediate, or compliance are selected but no scan phase is included:
+- Always run in pipeline order — do not run pentester before scanners
+- Warn if pentester or compliance are selected but no scan phase is included:
   > "These phases depend on scan findings. Run at least one scanner (code-recon, iac-scan, supply-chain, api-scan) first."
 
 ---
