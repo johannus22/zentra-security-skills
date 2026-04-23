@@ -1,7 +1,7 @@
 {
   "name": "edward",
-  "description": "Security penetration testing agent for Claude Code. Static analysis for OWASP Top 10 vulnerabilities plus dynamic validation with Playwright MCP.",
-  "version": "1.0.0",
+  "description": "Complete cybersecurity framework for Claude Code. 10 skills covering threat modeling, SAST, DAST, infrastructure scanning, supply chain analysis, API security, auto-remediation, compliance mapping, executive reporting, and development-phase security guard.",
+  "version": "2.1.0",
   "author": {
     "name": "Rafael",
     "email": "rafael@kodecraft.dev"
@@ -11,12 +11,23 @@
   "license": "MIT",
   "keywords": [
     "security",
+    "cybersecurity",
     "penetration-testing",
     "owasp",
     "static-analysis",
     "dynamic-testing",
     "vulnerability-scanner",
+    "threat-modeling",
+    "compliance",
+    "sast",
+    "dast",
+    "sca",
+    "supply-chain",
+    "infrastructure-security",
+    "api-security",
+    "remediation",
     "playwright",
-    "appsec"
+    "appsec",
+    "devsecops"
   ]
 }
