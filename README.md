@@ -7,6 +7,8 @@ Complete cybersecurity framework for AI coding agents. Zentra provides 10 specia
 ## Pipeline
 
 ```
+/zentra-pipeline (orchestrates all phases below)
+
 threat-model -> code-recon -+
                iac-scan ----+
                supply-chain +-> pentester -> remediate -> compliance -> report
@@ -21,6 +23,7 @@ threat-model -> code-recon -+
 
 | Skill | Phase | Description |
 |-------|-------|-------------|
+| `/zentra-pipeline` | Orchestrate | Runs full pipeline — spawns each skill as an isolated subagent |
 | `/zentra-threat-model` | Pre-scan | STRIDE analysis, attack surface mapping, trust boundaries |
 | `/zentra-code-recon` | Scan | OWASP Top 10 static analysis (SAST) |
 | `/zentra-iac-scan` | Scan | Docker, Terraform, K8s, CI/CD security |
@@ -42,8 +45,15 @@ threat-model -> code-recon -+
 ### Full Pipeline
 
 ```
+# Run everything at once (recommended)
+/zentra-pipeline               # Orchestrates all phases, spawns isolated subagents
+
+# Or run phases individually
 1. /zentra-threat-model        # Understand the attack surface
-2. /zentra-code-recon           # Static analysis (offers to run parallel scanners)
+2. /zentra-code-recon           # Static analysis
+   /zentra-iac-scan             # (run alongside code-recon)
+   /zentra-supply-chain         # (run alongside code-recon)
+   /zentra-api-scan             # (run alongside code-recon)
 3. /zentra-pentester            # Validate against running app
 4. /zentra-remediate            # Auto-fix vulnerabilities
 5. /zentra-compliance           # Map to regulatory frameworks
