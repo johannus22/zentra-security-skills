@@ -16,6 +16,9 @@ Ask the user these questions (ask all at once):
 1. **Target path** — the project to scan. Default: current working directory.
 2. **Exclusions** — paths to skip. Default: `node_modules/`, `vendor/`, `dist/`, `build/`, `.git/`
 3. **Phases** — which to run. Default: full pipeline. Options: `threat-model`, `scan`, `pentest`, `remediate`, `compliance`, `report`
+
+   > Note: `scan` runs all four scanners in parallel — `code-recon`, `iac-scan`, `supply-chain`, `api-scan`. Users can also specify individual scanner names to run a subset.
+
 4. **Live target URL** — only required if running pentester. If not provided, pentester is skipped.
 
 Create the `.zentra/` directory in the target project and write `config.json`:
@@ -27,7 +30,8 @@ Create the `.zentra/` directory in the target project and write `config.json`:
   "phases": ["threat-model", "scan", "pentest", "remediate", "compliance", "report"],
   "pipeline": true,
   "created_by": "zentra-pipeline",
-  "created_at": "<ISO 8601 timestamp>"
+  "created_at": "<ISO 8601 timestamp>",
+  "live_target_url": "<url or null>"
 }
 ```
 
@@ -48,7 +52,7 @@ Spawn as an isolated subagent:
 ```
 Agent({
   description: "Zentra threat model",
-  prompt: "Load and execute the zentra-threat-model skill. The target path and exclusions are already written to .zentra/config.json in the target project — read config.json at the start of Phase 1 intake instead of asking the user. Complete all phases of the skill."
+  prompt: "Load and execute the zentra-threat-model skill. Do not ask the user for the target path or exclusions — they are already written to <target>/.zentra/config.json (where <target> is the absolute path collected in Phase 1 intake). Complete all phases of the skill."
 })
 ```
 
@@ -61,13 +65,13 @@ Wait for completion. Report: `✓ Threat model — .zentra/threat-model/ written
 Send all four agents in a **single message** for parallel execution:
 
 ```
-Agent({ description: "zentra-code-recon", prompt: "Load and execute the zentra-code-recon skill. The target path and exclusions are already written to .zentra/config.json in the target project — read config.json at the start of Phase 1 intake instead of asking the user. Complete all phases of the skill." })
+Agent({ description: "zentra-code-recon", prompt: "Load and execute the zentra-code-recon skill. Do not ask the user for the target path or exclusions — they are already written to <target>/.zentra/config.json (where <target> is the absolute path collected in Phase 1 intake). Complete all phases of the skill." })
 
-Agent({ description: "zentra-iac-scan", prompt: "Load and execute the zentra-iac-scan skill. The target path and exclusions are already written to .zentra/config.json in the target project — read config.json at the start of Phase 1 intake instead of asking the user. Complete all phases of the skill." })
+Agent({ description: "zentra-iac-scan", prompt: "Load and execute the zentra-iac-scan skill. Do not ask the user for the target path or exclusions — they are already written to <target>/.zentra/config.json (where <target> is the absolute path collected in Phase 1 intake). Complete all phases of the skill." })
 
-Agent({ description: "zentra-supply-chain", prompt: "Load and execute the zentra-supply-chain skill. The target path and exclusions are already written to .zentra/config.json in the target project — read config.json at the start of Phase 1 intake instead of asking the user. Complete all phases of the skill." })
+Agent({ description: "zentra-supply-chain", prompt: "Load and execute the zentra-supply-chain skill. Do not ask the user for the target path or exclusions — they are already written to <target>/.zentra/config.json (where <target> is the absolute path collected in Phase 1 intake). Complete all phases of the skill." })
 
-Agent({ description: "zentra-api-scan", prompt: "Load and execute the zentra-api-scan skill. The target path and exclusions are already written to .zentra/config.json in the target project — read config.json at the start of Phase 1 intake instead of asking the user. Complete all phases of the skill." })
+Agent({ description: "zentra-api-scan", prompt: "Load and execute the zentra-api-scan skill. Do not ask the user for the target path or exclusions — they are already written to <target>/.zentra/config.json (where <target> is the absolute path collected in Phase 1 intake). Complete all phases of the skill." })
 ```
 
 Wait for all four to complete. Report status for each:
@@ -75,6 +79,8 @@ Wait for all four to complete. Report status for each:
 - `✓ iac-scan — N findings` (or `⚠ iac-scan — no IaC files found, skipped`)
 - `✓ supply-chain — N findings`
 - `✓ api-scan — N findings` (or `⚠ api-scan — no API definitions found, skipped`)
+
+> The four scanners collectively write to `.zentra/detailed-findings.md`. Wait for all four to complete before proceeding to Phase 4 — subsequent phases read from this file.
 
 ---
 
@@ -85,7 +91,7 @@ Wait for all four to complete. Report status for each:
 ```
 Agent({
   description: "zentra-pentester",
-  prompt: "Load and execute the zentra-pentester skill. Static findings are in .zentra/detailed-findings.md in the target project. Config is at .zentra/config.json. Live target URL: <url>. You MUST ask the user for explicit authorization before sending any requests to the target."
+  prompt: "Load and execute the zentra-pentester skill. Static findings are in .zentra/detailed-findings.md in the target project. Config is at .zentra/config.json. Live target URL: <url from config.json live_target_url field>. You MUST ask the user for explicit authorization before sending any requests to the target."
 })
 ```
 
@@ -151,7 +157,7 @@ Print the final summary:
   IaC Scan           ✓ done       N findings
   Supply Chain       ✓ done       N findings
   API Scan           ✓ done       N findings
-  Pentester          ✓ done       N confirmed
+  Pentester          ✓ done / ⚠ skipped  N confirmed / —
   Remediate          ✓ done       N patches applied
   Compliance         ✓ done       —
   Report             ✓ done       —
@@ -160,7 +166,7 @@ Print the final summary:
 ================================================================
 ```
 
-Replace `✓ done` with `⚠ skipped — <reason>` for any phase that was not run.
+For phases that were skipped (e.g., pentester when no live URL was provided), replace `✓ done` with `⚠ skipped — <reason>` and set Findings to `—`.
 
 ---
 
