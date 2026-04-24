@@ -48,6 +48,16 @@ if command -v opencode &>/dev/null; then
     fi
 fi
 
+HAS_CURSOR=false
+CURSOR_EXISTS=false
+
+if [ -d "$HOME/.cursor" ]; then
+    HAS_CURSOR=true
+    if [ -d "$HOME/.cursor/rules" ] && ls "$HOME/.cursor/rules"/zentra-*.mdc &>/dev/null 2>&1; then
+        CURSOR_EXISTS=true
+    fi
+fi
+
 # --- Show detected agents ---
 echo "Detected agents:"
 echo ""
@@ -72,10 +82,20 @@ else
     echo "  [ ] OpenCode     (not found)"
 fi
 
+if $HAS_CURSOR; then
+    if $CURSOR_EXISTS; then
+        echo "  [+] Cursor IDE   (Zentra already installed — will update)"
+    else
+        echo "  [+] Cursor IDE   (fresh install)"
+    fi
+else
+    echo "  [ ] Cursor IDE   (not found)"
+fi
+
 echo ""
 
 # --- No agents found ---
-if ! $HAS_CLAUDE && ! $HAS_OPENCODE; then
+if ! $HAS_CLAUDE && ! $HAS_OPENCODE && ! $HAS_CURSOR; then
     echo "No supported agents found."
     echo "Install Claude Code (https://claude.ai/code) or OpenCode (https://opencode.ai) first."
     exit 1
@@ -86,26 +106,26 @@ echo "Where would you like to install Zentra?"
 echo ""
 
 OPTIONS=()
-if $HAS_CLAUDE && $HAS_OPENCODE; then
-    OPTIONS+=("Claude Code")
-    OPTIONS+=("OpenCode")
-    OPTIONS+=("Both")
-    OPTIONS+=("Cancel")
-    echo "  1) Claude Code"
-    echo "  2) OpenCode"
-    echo "  3) Both"
-    echo "  4) Cancel"
-elif $HAS_CLAUDE; then
-    OPTIONS+=("Claude Code")
-    OPTIONS+=("Cancel")
-    echo "  1) Claude Code"
-    echo "  2) Cancel"
-elif $HAS_OPENCODE; then
-    OPTIONS+=("OpenCode")
-    OPTIONS+=("Cancel")
-    echo "  1) OpenCode"
-    echo "  2) Cancel"
+
+# Build options list based on what's detected
+if $HAS_CLAUDE;    then OPTIONS+=("Claude Code"); fi
+if $HAS_OPENCODE;  then OPTIONS+=("OpenCode"); fi
+if $HAS_CURSOR;    then OPTIONS+=("Cursor IDE"); fi
+
+# Add "All" if more than one platform detected
+PLATFORM_COUNT=0
+$HAS_CLAUDE   && PLATFORM_COUNT=$((PLATFORM_COUNT + 1))
+$HAS_OPENCODE && PLATFORM_COUNT=$((PLATFORM_COUNT + 1))
+$HAS_CURSOR   && PLATFORM_COUNT=$((PLATFORM_COUNT + 1))
+if [ "$PLATFORM_COUNT" -gt 1 ]; then
+    OPTIONS+=("All")
 fi
+
+OPTIONS+=("Cancel")
+
+for i in "${!OPTIONS[@]}"; do
+    echo "  $((i + 1))) ${OPTIONS[$i]}"
+done
 
 echo ""
 read -rp "Select [1-${#OPTIONS[@]}]: " choice
@@ -124,11 +144,13 @@ fi
 
 INSTALL_CLAUDE=false
 INSTALL_OPENCODE=false
+INSTALL_CURSOR=false
 
 case "$SELECTED" in
     "Claude Code") INSTALL_CLAUDE=true ;;
     "OpenCode")    INSTALL_OPENCODE=true ;;
-    "Both")        INSTALL_CLAUDE=true; INSTALL_OPENCODE=true ;;
+    "Cursor IDE")  INSTALL_CURSOR=true ;;
+    "All")         INSTALL_CLAUDE=$HAS_CLAUDE; INSTALL_OPENCODE=$HAS_OPENCODE; INSTALL_CURSOR=$HAS_CURSOR ;;
 esac
 
 echo ""
@@ -149,6 +171,11 @@ if $INSTALL_OPENCODE; then
     [ -d "$ZENTRA_DIR/.opencode/commands" ] && cmd_count=$(find "$ZENTRA_DIR/.opencode/commands" -name "*.md" 2>/dev/null | wc -l)
     [ -d "$ZENTRA_DIR/.opencode/agents" ] && agent_count=$(find "$ZENTRA_DIR/.opencode/agents" -name "*.md" 2>/dev/null | wc -l)
     TOTAL_STEPS=$((TOTAL_STEPS + skill_count + cmd_count + agent_count))
+fi
+
+if $INSTALL_CURSOR; then
+    cursor_mdc_count=$(find "$ZENTRA_DIR/.cursor/rules" -name "zentra-*.mdc" 2>/dev/null | wc -l)
+    TOTAL_STEPS=$((TOTAL_STEPS + cursor_mdc_count))
 fi
 
 # --- Silent install functions ---
@@ -202,9 +229,20 @@ install_opencode() {
     fi
 }
 
+install_cursor() {
+    CURSOR_RULES_DIR="$HOME/.cursor/rules"
+    mkdir -p "$CURSOR_RULES_DIR"
+
+    for mdc_file in "$ZENTRA_DIR"/.cursor/rules/zentra-*.mdc; do
+        cp "$mdc_file" "$CURSOR_RULES_DIR/$(basename "$mdc_file")"
+        CURRENT_STEP=$((CURRENT_STEP + 1))
+        show_progress "$CURRENT_STEP" "$TOTAL_STEPS"
+    done
+}
+
 # --- Execute ---
 local_action="Installing"
-if ($INSTALL_CLAUDE && $CLAUDE_EXISTS) || ($INSTALL_OPENCODE && $OPENCODE_EXISTS); then
+if ($INSTALL_CLAUDE && $CLAUDE_EXISTS) || ($INSTALL_OPENCODE && $OPENCODE_EXISTS) || ($INSTALL_CURSOR && $CURSOR_EXISTS); then
     local_action="Updating"
 fi
 echo "$local_action Zentra..."
@@ -216,6 +254,10 @@ fi
 
 if $INSTALL_OPENCODE; then
     install_opencode
+fi
+
+if $INSTALL_CURSOR; then
+    install_cursor
 fi
 
 echo ""
@@ -233,3 +275,5 @@ echo "Quick start:"
 echo "  /zentra-code-recon    — Run OWASP Top 10 static analysis"
 echo "  /zentra-dev           — Quick scan of changed files"
 echo "  /zentra               — Show pipeline status"
+echo ""
+echo "Cursor IDE: Ask the AI 'run zentra-code-recon' — rules are now in ~/.cursor/rules/"
