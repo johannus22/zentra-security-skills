@@ -37,3 +37,11 @@ threat-model -> code-recon -+
 - Credentials in memory only — never written to files
 - Destructive operations (DELETE, DROP) prohibited during pentesting
 - `.zentra/` automatically excluded from version control
+
+## Platform Support
+
+| Platform | Skill delivery |
+|----------|---------------|
+| Claude Code | Plugin symlink at `~/.claude/plugins/zentra` — use `/zentra-<name>` slash commands |
+| OpenCode | Per-skill symlinks at `~/.config/opencode/skills/` + commands copied — use `/zentra-<name>` |
+| Cursor IDE | MDC rules copied to `~/.cursor/rules/` — ask AI to run zentra skills by name |

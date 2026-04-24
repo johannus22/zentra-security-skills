@@ -2,7 +2,7 @@
 
 Complete cybersecurity framework for AI coding agents. Zentra provides 10 specialized security skills covering the full lifecycle — from threat modeling and static analysis through dynamic validation, auto-remediation, compliance mapping, and executive reporting.
 
-**Supported platforms:** [Claude Code](https://claude.ai/code) · [OpenCode](https://opencode.ai)
+**Supported platforms:** [Claude Code](https://claude.ai/code) · [OpenCode](https://opencode.ai) · [Cursor](https://cursor.com)
 
 ## Pipeline
 
@@ -111,7 +111,7 @@ All pipeline skills write to `.zentra/` (automatically added to `.gitignore`):
 
 ## Prerequisites
 
-- **Claude Code** with plugin support — OR — **OpenCode** v0.1+
+- **Claude Code** with plugin support — OR — **OpenCode** v0.1+ — OR — **Cursor** with AI chat enabled
 - **Playwright MCP** (for `/zentra-pentester`): `npx @playwright/mcp@latest`
 - **Burp Suite MCP** or **Caido MCP** (optional): Passive proxy during pentesting
 
@@ -151,6 +151,28 @@ Or install skills globally:
 git clone https://github.com/Kodecraft-Dev/zentra.git
 cd zentra && bash install.sh
 ```
+
+### Cursor IDE
+
+```bash
+# Unix/macOS
+git clone https://github.com/Kodecraft-Dev/zentra.git
+cd zentra && bash install.sh   # select "Cursor IDE" or "All"
+
+# Windows (PowerShell)
+git clone https://github.com/Kodecraft-Dev/zentra.git
+cd zentra; .\install.ps1       # select "Cursor IDE" or "All"
+```
+
+Rules are installed to `~/.cursor/rules/`. Once installed, use Cursor's AI chat:
+
+```
+Ask AI: run zentra-code-recon
+Ask AI: run the full zentra pipeline
+Ask AI: scan this project for OWASP vulnerabilities
+```
+
+> **Note:** Cursor reads rules from `.cursor/rules/` within the current project. If zentra rules don't auto-apply, copy `~/.cursor/rules/zentra-*.mdc` into your project's `.cursor/rules/` folder.
 
 ## Safety
 
