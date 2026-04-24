@@ -53,7 +53,7 @@ CURSOR_EXISTS=false
 
 if [ -d "$HOME/.cursor" ]; then
     HAS_CURSOR=true
-    if [ -d "$HOME/.cursor/rules" ] && ls "$HOME/.cursor/rules"/zentra-*.mdc &>/dev/null 2>&1; then
+    if [ -d "$HOME/.cursor/rules" ] && ls "$HOME/.cursor/rules"/zentra-*.mdc &>/dev/null; then
         CURSOR_EXISTS=true
     fi
 fi
@@ -234,6 +234,7 @@ install_cursor() {
     mkdir -p "$CURSOR_RULES_DIR"
 
     for mdc_file in "$ZENTRA_DIR"/.cursor/rules/zentra-*.mdc; do
+        [ -f "$mdc_file" ] || continue
         cp "$mdc_file" "$CURSOR_RULES_DIR/$(basename "$mdc_file")"
         CURRENT_STEP=$((CURRENT_STEP + 1))
         show_progress "$CURRENT_STEP" "$TOTAL_STEPS"
