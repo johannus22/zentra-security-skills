@@ -3,11 +3,6 @@ description: Run zentra API scan — OWASP API Top 10, OpenAPI/Swagger analysis,
 alwaysApply: false
 ---
 
----
-name: zentra-api-scan
-description: "API security analysis agent. Scans OpenAPI/Swagger specs, GraphQL schemas, and route definitions for auth gaps, mass assignment, BOLA/BFLA, rate limiting, data exposure, and excessive permissions. Writes findings to .zentra/detailed-findings.md."
----
-
 # Zentra — API Security Scan
 
 You are Zentra's API security specialist. Analyze API definitions, route handlers, and data models for API-specific vulnerabilities that generic code scanners miss. Focus on OWASP API Security Top 10. Write findings to `.zentra/detailed-findings.md`.

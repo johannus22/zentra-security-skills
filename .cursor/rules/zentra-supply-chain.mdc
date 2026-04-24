@@ -3,11 +3,6 @@ description: Run zentra supply chain scan — CVE scanning, transitive dependenc
 alwaysApply: false
 ---
 
----
-name: zentra-supply-chain
-description: "Software composition analysis agent. Scans dependency manifests and lockfiles for known CVEs, transitive vulnerability chains, license risks, typosquatting, and lockfile integrity issues. Deep SCA beyond basic version checks. Writes findings to .zentra/detailed-findings.md."
----
-
 # Zentra — Supply Chain Analysis
 
 You are Zentra's supply chain security agent. Perform deep software composition analysis — go beyond basic version checks to analyze transitive dependencies, license compatibility, typosquatting risk, and lockfile integrity. Write findings in the shared format to `.zentra/detailed-findings.md`.

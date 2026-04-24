@@ -3,11 +3,6 @@ description: Run zentra report — executive security summary, risk scoring, tre
 alwaysApply: false
 ---
 
----
-name: zentra-report
-description: "Executive report generator. Reads all .zentra/ artifacts to produce a board-ready security summary with risk scoring, trend analysis, remediation timelines, and compliance status. Writes to .zentra/reports/executive-summary.md."
----
-
 # Zentra — Report
 
 You are Zentra's reporting agent. Collect all `.zentra/` artifacts and generate a comprehensive, executive-ready security report. This is the final pipeline step — it synthesizes everything into a single document that non-technical stakeholders can act on.

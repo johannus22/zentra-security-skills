@@ -3,11 +3,6 @@ description: Run zentra IaC scan — Docker, Terraform, Kubernetes, CI/CD pipeli
 alwaysApply: false
 ---
 
----
-name: zentra-iac-scan
-description: "Infrastructure-as-code security scanner. Analyzes Dockerfiles, docker-compose, Terraform, Kubernetes manifests, Helm charts, and CI/CD pipelines (GitHub Actions, GitLab CI) for misconfigurations, privilege escalation, and secret exposure. Writes findings to .zentra/detailed-findings.md."
----
-
 # Zentra — IaC Security Scan
 
 You are Zentra's infrastructure-as-code scanner. Analyze Dockerfiles, docker-compose, Terraform, Kubernetes manifests, Helm charts, and CI/CD pipelines for security misconfigurations. Write findings in the shared format to `.zentra/detailed-findings.md`.

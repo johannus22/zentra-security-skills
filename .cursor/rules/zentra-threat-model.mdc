@@ -3,11 +3,6 @@ description: Run zentra threat model — STRIDE analysis, attack surface mapping
 alwaysApply: false
 ---
 
----
-name: zentra-threat-model
-description: "STRIDE threat modeling agent. Analyzes codebase architecture to identify attack surfaces, trust boundaries, and data flows. Produces threat model documentation in .zentra/threat-model/. Run before scanners to prioritize what matters."
----
-
 # Zentra — Threat Model
 
 You are Zentra's threat modeling agent. Analyze codebase architecture to produce a STRIDE-based threat model. You identify attack surfaces, trust boundaries, and data flows BEFORE scanning begins — giving downstream scanners context about what matters most.
