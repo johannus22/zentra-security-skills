@@ -58,6 +58,16 @@ if [ -d "$HOME/.cursor" ]; then
     fi
 fi
 
+HAS_CODEX=false
+CODEX_EXISTS=false
+
+if command -v codex &>/dev/null || [ -d "$HOME/.codex" ]; then
+    HAS_CODEX=true
+    if [ -d "$HOME/.codex/zentra" ] && ls "$HOME/.codex/zentra"/zentra-*.md &>/dev/null; then
+        CODEX_EXISTS=true
+    fi
+fi
+
 # --- Show detected agents ---
 echo "Detected agents:"
 echo ""
@@ -92,12 +102,22 @@ else
     echo "  [ ] Cursor IDE   (not found)"
 fi
 
+if $HAS_CODEX; then
+    if $CODEX_EXISTS; then
+        echo "  [+] Codex CLI    (Zentra already installed — will update)"
+    else
+        echo "  [+] Codex CLI    (fresh install)"
+    fi
+else
+    echo "  [ ] Codex CLI    (not found)"
+fi
+
 echo ""
 
 # --- No agents found ---
-if ! $HAS_CLAUDE && ! $HAS_OPENCODE && ! $HAS_CURSOR; then
+if ! $HAS_CLAUDE && ! $HAS_OPENCODE && ! $HAS_CURSOR && ! $HAS_CODEX; then
     echo "No supported agents found."
-    echo "Install Claude Code (https://claude.ai/code) or OpenCode (https://opencode.ai) first."
+    echo "Install Claude Code (https://claude.ai/code), OpenCode (https://opencode.ai), Cursor (https://cursor.com), or Codex CLI (https://openai.com/codex) first."
     exit 1
 fi
 
@@ -111,12 +131,14 @@ OPTIONS=()
 if $HAS_CLAUDE;    then OPTIONS+=("Claude Code"); fi
 if $HAS_OPENCODE;  then OPTIONS+=("OpenCode"); fi
 if $HAS_CURSOR;    then OPTIONS+=("Cursor IDE"); fi
+if $HAS_CODEX;    then OPTIONS+=("Codex CLI"); fi
 
 # Add "All" if more than one platform detected
 PLATFORM_COUNT=0
 $HAS_CLAUDE   && PLATFORM_COUNT=$((PLATFORM_COUNT + 1))
 $HAS_OPENCODE && PLATFORM_COUNT=$((PLATFORM_COUNT + 1))
 $HAS_CURSOR   && PLATFORM_COUNT=$((PLATFORM_COUNT + 1))
+$HAS_CODEX    && PLATFORM_COUNT=$((PLATFORM_COUNT + 1))
 if [ "$PLATFORM_COUNT" -gt 1 ]; then
     OPTIONS+=("All")
 fi
@@ -145,12 +167,14 @@ fi
 INSTALL_CLAUDE=false
 INSTALL_OPENCODE=false
 INSTALL_CURSOR=false
+INSTALL_CODEX=false
 
 case "$SELECTED" in
     "Claude Code") INSTALL_CLAUDE=true ;;
     "OpenCode")    INSTALL_OPENCODE=true ;;
     "Cursor IDE")  INSTALL_CURSOR=true ;;
-    "All")         INSTALL_CLAUDE=$HAS_CLAUDE; INSTALL_OPENCODE=$HAS_OPENCODE; INSTALL_CURSOR=$HAS_CURSOR ;;
+    "Codex CLI")   INSTALL_CODEX=true ;;
+    "All")         INSTALL_CLAUDE=$HAS_CLAUDE; INSTALL_OPENCODE=$HAS_OPENCODE; INSTALL_CURSOR=$HAS_CURSOR; INSTALL_CODEX=$HAS_CODEX ;;
 esac
 
 echo ""
@@ -176,6 +200,11 @@ fi
 if $INSTALL_CURSOR; then
     cursor_mdc_count=$(find "$ZENTRA_DIR/.cursor/rules" -name "zentra-*.mdc" 2>/dev/null | wc -l)
     TOTAL_STEPS=$((TOTAL_STEPS + cursor_mdc_count))
+fi
+
+if $INSTALL_CODEX; then
+    codex_skill_count=$(find "$ZENTRA_DIR/.codex" -name "zentra-*.md" 2>/dev/null | wc -l)
+    TOTAL_STEPS=$((TOTAL_STEPS + codex_skill_count + 1))
 fi
 
 # --- Silent install functions ---
@@ -241,9 +270,41 @@ install_cursor() {
     done
 }
 
+install_codex() {
+    CODEX_ZENTRA_DIR="$HOME/.codex/zentra"
+    mkdir -p "$CODEX_ZENTRA_DIR"
+
+    for skill_file in "$ZENTRA_DIR"/.codex/zentra-*.md; do
+        [ -f "$skill_file" ] || continue
+        cp "$skill_file" "$CODEX_ZENTRA_DIR/$(basename "$skill_file")"
+        CURRENT_STEP=$((CURRENT_STEP + 1))
+        show_progress "$CURRENT_STEP" "$TOTAL_STEPS"
+    done
+
+    CODEX_AGENTS="$HOME/.codex/AGENTS.md"
+    MARKER_START="<!-- zentra:start -->"
+    MARKER_END="<!-- zentra:end -->"
+    ZENTRA_SECTION=$(cat "$ZENTRA_DIR/.codex/AGENTS.md")
+
+    if [ ! -f "$CODEX_AGENTS" ]; then
+        printf '%s\n%s\n%s\n' "$MARKER_START" "$ZENTRA_SECTION" "$MARKER_END" > "$CODEX_AGENTS"
+    elif grep -qF "$MARKER_START" "$CODEX_AGENTS"; then
+        awk -v start="$MARKER_START" -v end="$MARKER_END" -v content="$ZENTRA_SECTION" '
+            $0 == start { skip=1; print start; print content; print end; next }
+            $0 == end   { skip=0; next }
+            !skip        { print }
+        ' "$CODEX_AGENTS" > "$CODEX_AGENTS.tmp" && mv "$CODEX_AGENTS.tmp" "$CODEX_AGENTS"
+    else
+        printf '\n\n%s\n%s\n%s\n' "$MARKER_START" "$ZENTRA_SECTION" "$MARKER_END" >> "$CODEX_AGENTS"
+    fi
+
+    CURRENT_STEP=$((CURRENT_STEP + 1))
+    show_progress "$CURRENT_STEP" "$TOTAL_STEPS"
+}
+
 # --- Execute ---
 local_action="Installing"
-if ($INSTALL_CLAUDE && $CLAUDE_EXISTS) || ($INSTALL_OPENCODE && $OPENCODE_EXISTS) || ($INSTALL_CURSOR && $CURSOR_EXISTS); then
+if ($INSTALL_CLAUDE && $CLAUDE_EXISTS) || ($INSTALL_OPENCODE && $OPENCODE_EXISTS) || ($INSTALL_CURSOR && $CURSOR_EXISTS) || ($INSTALL_CODEX && $CODEX_EXISTS); then
     local_action="Updating"
 fi
 echo "$local_action Zentra..."
@@ -259,6 +320,10 @@ fi
 
 if $INSTALL_CURSOR; then
     install_cursor
+fi
+
+if $INSTALL_CODEX; then
+    install_codex
 fi
 
 echo ""
@@ -278,3 +343,4 @@ echo "  /zentra-dev           — Quick scan of changed files"
 echo "  /zentra               — Show pipeline status"
 echo ""
 echo "Cursor IDE: Ask the AI 'run zentra-code-recon' — rules are now in ~/.cursor/rules/"
+echo "Codex CLI: Ask the AI 'run zentra-code-recon' — full skill files are in ~/.codex/zentra/"
