@@ -42,6 +42,16 @@ if ($hasOpenCode) {
     if (Test-Path $opencodeSkillCheck) { $opencodeExists = $true }
 }
 
+$hasCursor = Test-Path (Join-Path $env:USERPROFILE ".cursor")
+$cursorExists = $false
+
+if ($hasCursor) {
+    $cursorRulesDir = Join-Path $env:USERPROFILE ".cursor\rules"
+    if ((Test-Path $cursorRulesDir) -and (Get-ChildItem -Path $cursorRulesDir -Filter "zentra-*.mdc" -ErrorAction SilentlyContinue).Count -gt 0) {
+        $cursorExists = $true
+    }
+}
+
 # --- Show detected agents ---
 Write-Host "Detected agents:" -ForegroundColor White
 Write-Host ""
@@ -66,10 +76,20 @@ if ($hasOpenCode) {
     Write-Host "  [ ] OpenCode     (not found)" -ForegroundColor Gray
 }
 
+if ($hasCursor) {
+    if ($cursorExists) {
+        Write-Host "  [+] Cursor IDE   (Zentra already installed - will update)" -ForegroundColor Green
+    } else {
+        Write-Host "  [+] Cursor IDE   (fresh install)" -ForegroundColor Green
+    }
+} else {
+    Write-Host "  [ ] Cursor IDE   (not found)" -ForegroundColor Gray
+}
+
 Write-Host ""
 
 # --- No agents found ---
-if (-not $hasClaude -and -not $hasOpenCode) {
+if (-not $hasClaude -and -not $hasOpenCode -and -not $hasCursor) {
     Write-Host "No supported agents found." -ForegroundColor Red
     Write-Host "Install Claude Code (https://claude.ai/code) or OpenCode (https://opencode.ai) first."
     exit 1
@@ -80,20 +100,16 @@ Write-Host "Where would you like to install Zentra?" -ForegroundColor White
 Write-Host ""
 
 $options = @()
-if ($hasClaude -and $hasOpenCode) {
-    $options = @("Claude Code", "OpenCode", "Both", "Cancel")
-    Write-Host "  1) Claude Code"
-    Write-Host "  2) OpenCode"
-    Write-Host "  3) Both"
-    Write-Host "  4) Cancel"
-} elseif ($hasClaude) {
-    $options = @("Claude Code", "Cancel")
-    Write-Host "  1) Claude Code"
-    Write-Host "  2) Cancel"
-} elseif ($hasOpenCode) {
-    $options = @("OpenCode", "Cancel")
-    Write-Host "  1) OpenCode"
-    Write-Host "  2) Cancel"
+if ($hasClaude)   { $options += "Claude Code" }
+if ($hasOpenCode) { $options += "OpenCode" }
+if ($hasCursor)   { $options += "Cursor IDE" }
+
+$platformCount = @($hasClaude, $hasOpenCode, $hasCursor) | Where-Object { $_ } | Measure-Object | Select-Object -ExpandProperty Count
+if ($platformCount -gt 1) { $options += "All" }
+$options += "Cancel"
+
+for ($i = 0; $i -lt $options.Count; $i++) {
+    Write-Host "  $($i + 1)) $($options[$i])"
 }
 
 Write-Host ""
@@ -112,8 +128,9 @@ if ($selected -eq "Cancel") {
     exit 0
 }
 
-$installClaude = ($selected -eq "Claude Code") -or ($selected -eq "Both")
-$installOpenCode = ($selected -eq "OpenCode") -or ($selected -eq "Both")
+$installClaude   = ($selected -eq "Claude Code") -or ($selected -eq "All" -and $hasClaude)
+$installOpenCode = ($selected -eq "OpenCode")    -or ($selected -eq "All" -and $hasOpenCode)
+$installCursor   = ($selected -eq "Cursor IDE")  -or ($selected -eq "All" -and $hasCursor)
 
 Write-Host ""
 
@@ -132,6 +149,13 @@ if ($installOpenCode) {
     $agentsDir = Join-Path $ZentraDir ".opencode\agents"
     if (Test-Path $agentsDir) {
         $totalSteps += (Get-ChildItem -Path $agentsDir -Filter "*.md").Count
+    }
+}
+
+if ($installCursor) {
+    $cursorMdcDir = Join-Path $ZentraDir ".cursor\rules"
+    if (Test-Path $cursorMdcDir) {
+        $totalSteps += (Get-ChildItem -Path $cursorMdcDir -Filter "zentra-*.mdc").Count
     }
 }
 
@@ -187,9 +211,23 @@ function Install-OpenCode {
     }
 }
 
+function Install-Cursor {
+    $cursorRulesDir = Join-Path $env:USERPROFILE ".cursor\rules"
+    New-Item -ItemType Directory -Path $cursorRulesDir -Force | Out-Null
+
+    $zentraMdcDir = Join-Path $ZentraDir ".cursor\rules"
+    if (Test-Path $zentraMdcDir) {
+        Get-ChildItem -Path $zentraMdcDir -Filter "zentra-*.mdc" | ForEach-Object {
+            Copy-Item $_.FullName -Destination (Join-Path $cursorRulesDir $_.Name) -Force
+            $script:currentStep++
+            Show-Progress -Current $script:currentStep -Total $totalSteps
+        }
+    }
+}
+
 # --- Execute ---
 $action = "Installing"
-if (($installClaude -and $claudeExists) -or ($installOpenCode -and $opencodeExists)) {
+if (($installClaude -and $claudeExists) -or ($installOpenCode -and $opencodeExists) -or ($installCursor -and $cursorExists)) {
     $action = "Updating"
 }
 Write-Host "$action Zentra..." -ForegroundColor Yellow
@@ -201,6 +239,10 @@ if ($installClaude) {
 
 if ($installOpenCode) {
     Install-OpenCode
+}
+
+if ($installCursor) {
+    Install-Cursor
 }
 
 Write-Host ""
@@ -218,3 +260,5 @@ Write-Host "Quick start:"
 Write-Host "  /zentra-code-recon    - Run OWASP Top 10 static analysis"
 Write-Host "  /zentra-dev           - Quick scan of changed files"
 Write-Host "  /zentra               - Show pipeline status"
+Write-Host ""
+Write-Host "Cursor IDE: Ask the AI 'run zentra-code-recon' - rules are now in ~/.cursor/rules/"
