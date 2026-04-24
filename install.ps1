@@ -52,6 +52,16 @@ if ($hasCursor) {
     }
 }
 
+$hasCodex = ($null -ne (Get-Command codex -ErrorAction SilentlyContinue)) -or (Test-Path (Join-Path $env:USERPROFILE ".codex"))
+$codexExists = $false
+
+if ($hasCodex) {
+    $codexZentraCheck = Join-Path $env:USERPROFILE ".codex\zentra"
+    if ((Test-Path $codexZentraCheck) -and (Get-ChildItem -Path $codexZentraCheck -Filter "zentra-*.md" -ErrorAction SilentlyContinue).Count -gt 0) {
+        $codexExists = $true
+    }
+}
+
 # --- Show detected agents ---
 Write-Host "Detected agents:" -ForegroundColor White
 Write-Host ""
@@ -86,12 +96,22 @@ if ($hasCursor) {
     Write-Host "  [ ] Cursor IDE   (not found)" -ForegroundColor Gray
 }
 
+if ($hasCodex) {
+    if ($codexExists) {
+        Write-Host "  [+] Codex CLI    (Zentra already installed - will update)" -ForegroundColor Green
+    } else {
+        Write-Host "  [+] Codex CLI    (fresh install)" -ForegroundColor Green
+    }
+} else {
+    Write-Host "  [ ] Codex CLI    (not found)" -ForegroundColor Gray
+}
+
 Write-Host ""
 
 # --- No agents found ---
-if (-not $hasClaude -and -not $hasOpenCode -and -not $hasCursor) {
+if (-not $hasClaude -and -not $hasOpenCode -and -not $hasCursor -and -not $hasCodex) {
     Write-Host "No supported agents found." -ForegroundColor Red
-    Write-Host "Install Claude Code (https://claude.ai/code) or OpenCode (https://opencode.ai) first."
+    Write-Host "Install Claude Code (https://claude.ai/code), OpenCode (https://opencode.ai), Cursor IDE, or Codex CLI first."
     exit 1
 }
 
@@ -103,8 +123,9 @@ $options = @()
 if ($hasClaude)   { $options += "Claude Code" }
 if ($hasOpenCode) { $options += "OpenCode" }
 if ($hasCursor)   { $options += "Cursor IDE" }
+if ($hasCodex)    { $options += "Codex CLI" }
 
-$platformCount = @($hasClaude, $hasOpenCode, $hasCursor) | Where-Object { $_ } | Measure-Object | Select-Object -ExpandProperty Count
+$platformCount = @($hasClaude, $hasOpenCode, $hasCursor, $hasCodex) | Where-Object { $_ } | Measure-Object | Select-Object -ExpandProperty Count
 if ($platformCount -gt 1) { $options += "All" }
 $options += "Cancel"
 
@@ -131,6 +152,7 @@ if ($selected -eq "Cancel") {
 $installClaude   = ($selected -eq "Claude Code") -or ($selected -eq "All" -and $hasClaude)
 $installOpenCode = ($selected -eq "OpenCode")    -or ($selected -eq "All" -and $hasOpenCode)
 $installCursor   = ($selected -eq "Cursor IDE")  -or ($selected -eq "All" -and $hasCursor)
+$installCodex    = ($selected -eq "Codex CLI")   -or ($selected -eq "All" -and $hasCodex)
 
 Write-Host ""
 
@@ -156,6 +178,13 @@ if ($installCursor) {
     $cursorMdcDir = Join-Path $ZentraDir ".cursor\rules"
     if (Test-Path $cursorMdcDir) {
         $totalSteps += (Get-ChildItem -Path $cursorMdcDir -Filter "zentra-*.mdc").Count
+    }
+}
+
+if ($installCodex) {
+    $codexSkillDir = Join-Path $ZentraDir ".codex"
+    if (Test-Path $codexSkillDir) {
+        $totalSteps += (Get-ChildItem -Path $codexSkillDir -Filter "zentra-*.md").Count + 1
     }
 }
 
@@ -225,9 +254,43 @@ function Install-Cursor {
     }
 }
 
+function Install-Codex {
+    $codexZentraDir = Join-Path $env:USERPROFILE ".codex\zentra"
+    New-Item -ItemType Directory -Path $codexZentraDir -Force | Out-Null
+
+    $zentraCodexDir = Join-Path $ZentraDir ".codex"
+    if (Test-Path $zentraCodexDir) {
+        Get-ChildItem -Path $zentraCodexDir -Filter "zentra-*.md" | ForEach-Object {
+            Copy-Item $_.FullName -Destination (Join-Path $codexZentraDir $_.Name) -Force
+            $script:currentStep++
+            Show-Progress -Current $script:currentStep -Total $totalSteps
+        }
+    }
+
+    $codexAgents   = Join-Path $env:USERPROFILE ".codex\AGENTS.md"
+    $markerStart   = "<!-- zentra:start -->"
+    $markerEnd     = "<!-- zentra:end -->"
+    $zentraSection = Get-Content (Join-Path $ZentraDir ".codex\AGENTS.md") -Raw
+
+    if (-not (Test-Path $codexAgents)) {
+        Set-Content -Path $codexAgents -Value "$markerStart`n$zentraSection`n$markerEnd" -Encoding utf8
+    } elseif ((Get-Content $codexAgents -Raw) -match [regex]::Escape($markerStart)) {
+        $existing    = Get-Content $codexAgents -Raw
+        $pattern     = "(?s)" + [regex]::Escape($markerStart) + ".*?" + [regex]::Escape($markerEnd)
+        $replacement = "$markerStart`n$zentraSection`n$markerEnd"
+        $updated     = [regex]::Replace($existing, $pattern, $replacement)
+        Set-Content -Path $codexAgents -Value $updated -Encoding utf8
+    } else {
+        Add-Content -Path $codexAgents -Value "`n`n$markerStart`n$zentraSection`n$markerEnd" -Encoding utf8
+    }
+
+    $script:currentStep++
+    Show-Progress -Current $script:currentStep -Total $totalSteps
+}
+
 # --- Execute ---
 $action = "Installing"
-if (($installClaude -and $claudeExists) -or ($installOpenCode -and $opencodeExists) -or ($installCursor -and $cursorExists)) {
+if (($installClaude -and $claudeExists) -or ($installOpenCode -and $opencodeExists) -or ($installCursor -and $cursorExists) -or ($installCodex -and $codexExists)) {
     $action = "Updating"
 }
 Write-Host "$action Zentra..." -ForegroundColor Yellow
@@ -243,6 +306,10 @@ if ($installOpenCode) {
 
 if ($installCursor) {
     Install-Cursor
+}
+
+if ($installCodex) {
+    Install-Codex
 }
 
 Write-Host ""
@@ -262,3 +329,4 @@ Write-Host "  /zentra-dev           - Quick scan of changed files"
 Write-Host "  /zentra               - Show pipeline status"
 Write-Host ""
 Write-Host "Cursor IDE: Ask the AI 'run zentra-code-recon' - rules are now in ~/.cursor/rules/"
+Write-Host "Codex CLI: Ask the AI 'run zentra-code-recon' - full skill files are in ~/.codex/zentra/"
