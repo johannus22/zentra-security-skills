@@ -45,3 +45,4 @@ threat-model -> code-recon -+
 | Claude Code | Plugin symlink at `~/.claude/plugins/zentra` — use `/zentra-<name>` slash commands |
 | OpenCode | Per-skill symlinks at `~/.config/opencode/skills/` + commands copied — use `/zentra-<name>` |
 | Cursor IDE | MDC rules copied to `~/.cursor/rules/` — ask AI to run zentra skills by name |
+| Codex CLI | Skill files in `~/.codex/zentra/` + index appended to `~/.codex/AGENTS.md` — ask AI to run zentra skills by name |

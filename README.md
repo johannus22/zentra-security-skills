@@ -2,7 +2,7 @@
 
 Complete cybersecurity framework for AI coding agents. Zentra provides 10 specialized security skills covering the full lifecycle — from threat modeling and static analysis through dynamic validation, auto-remediation, compliance mapping, and executive reporting.
 
-**Supported platforms:** [Claude Code](https://claude.ai/code) · [OpenCode](https://opencode.ai) · [Cursor](https://cursor.com)
+**Supported platforms:** [Claude Code](https://claude.ai/code) · [OpenCode](https://opencode.ai) · [Cursor](https://cursor.com) · [Codex CLI](https://openai.com/codex)
 
 ## Pipeline
 
@@ -111,7 +111,7 @@ All pipeline skills write to `.zentra/` (automatically added to `.gitignore`):
 
 ## Prerequisites
 
-- **Claude Code** with plugin support — OR — **OpenCode** v0.1+ — OR — **Cursor** with AI chat enabled
+- **Claude Code** with plugin support — OR — **OpenCode** v0.1+ — OR — **Cursor** with AI chat enabled — OR — **Codex CLI** (OpenAI)
 - **Playwright MCP** (for `/zentra-pentester`): `npx @playwright/mcp@latest`
 - **Burp Suite MCP** or **Caido MCP** (optional): Passive proxy during pentesting
 
@@ -173,6 +173,32 @@ Ask AI: scan this project for OWASP vulnerabilities
 ```
 
 > **Note:** Cursor reads rules from `.cursor/rules/` within the current project. If zentra rules don't auto-apply, copy `~/.cursor/rules/zentra-*.mdc` into your project's `.cursor/rules/` folder.
+
+### Codex CLI
+
+```bash
+# Unix/macOS
+git clone https://github.com/Kodecraft-Dev/zentra.git
+cd zentra && bash install.sh   # select "Codex CLI" or "All"
+
+# Windows (PowerShell)
+git clone https://github.com/Kodecraft-Dev/zentra.git
+cd zentra; .\install.ps1       # select "Codex CLI" or "All"
+```
+
+The installer:
+1. Copies full skill files to `~/.codex/zentra/`
+2. Appends a zentra skill index to `~/.codex/AGENTS.md` (creates it if missing; uses `<!-- zentra:start/end -->` markers for safe idempotent updates)
+
+Once installed, use Codex's chat:
+
+```
+Ask AI: run zentra-code-recon
+Ask AI: run the full zentra pipeline
+Ask AI: scan this project for OWASP vulnerabilities
+```
+
+> **How it works:** Codex reads your global `~/.codex/AGENTS.md` at session start — this includes the zentra skill index. When you ask to run a skill, Codex reads the full instructions from `~/.codex/zentra/zentra-<name>.md`.
 
 ## Safety
 

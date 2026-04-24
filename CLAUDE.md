@@ -87,5 +87,6 @@ description: "One sentence — shown in skill picker UI."
 | Claude Code | Plugin symlink at `~/.claude/plugins/zentra` | — |
 | OpenCode | Per-skill symlinks at `~/.config/opencode/skills/` + commands/agents copied | `opencode.json` |
 | Cursor IDE | MDC rules copied to `~/.cursor/rules/` | — |
+| Codex CLI | Skill files in `~/.codex/zentra/` + section appended to `~/.codex/AGENTS.md` | — |
 
 Playwright MCP is configured in `opencode.json` for `zentra-pentester`. Claude Code users install it separately (`npx @playwright/mcp@latest`).
