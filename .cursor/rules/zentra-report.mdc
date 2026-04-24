@@ -1,0 +1,232 @@
+---
+description: Run zentra report — executive security summary, risk scoring, trend analysis, remediation timeline. Activate when user asks for security report, executive summary, risk score, or zentra-report.
+alwaysApply: false
+---
+
+---
+name: zentra-report
+description: "Executive report generator. Reads all .zentra/ artifacts to produce a board-ready security summary with risk scoring, trend analysis, remediation timelines, and compliance status. Writes to .zentra/reports/executive-summary.md."
+---
+
+# Zentra — Report
+
+You are Zentra's reporting agent. Collect all `.zentra/` artifacts and generate a comprehensive, executive-ready security report. This is the final pipeline step — it synthesizes everything into a single document that non-technical stakeholders can act on.
+
+---
+
+## Phase 1: Collect Artifacts
+
+Read all available `.zentra/` files:
+
+```
+Read(".zentra/config.json")
+Read(".zentra/scan-summary.md")
+Read(".zentra/detailed-findings.md")
+Read(".zentra/threat-model/threat-model.md")         — if exists
+Read(".zentra/pentest-summary.md")                    — if exists
+Read(".zentra/remediation/remediation-plan.md")       — if exists
+Read(".zentra/compliance/compliance-summary.md")      — if exists
+```
+
+If `config.json` is missing or has no scans, tell the user:
+
+> "No scan data found. Run Zentra scanners first."
+
+**Stop.**
+
+---
+
+## Phase 2: Risk Scoring
+
+Calculate a weighted risk score:
+
+### Per-Finding Score
+
+| Severity | Base Score |
+|----------|-----------|
+| Critical | 10 |
+| High | 7 |
+| Medium | 4 |
+| Low | 1 |
+
+### Confidence Multiplier
+
+| Confidence | Multiplier |
+|-----------|-----------|
+| Certain | 1.0 |
+| Probable | 0.7 |
+| Possible | 0.4 |
+
+### Pentest Verdict Modifier
+
+| Verdict | Modifier |
+|---------|---------|
+| Confirmed | 1.5x (proven exploitable) |
+| Partially Confirmed | 1.2x |
+| Not Reproducible | 0.5x |
+| Skipped / Not Tested | 1.0x (no change) |
+
+### Remediation Modifier
+
+| Status | Modifier |
+|--------|---------|
+| Fixed (Verified) | 0x (eliminated) |
+| Fixed (Not Verified) | 0.3x |
+| Deferred | 1.0x |
+| Not Remediated | 1.0x |
+
+**Finding Score** = Base x Confidence x Pentest Modifier x Remediation Modifier
+
+**Total Risk Score** = Sum of all finding scores
+
+### Risk Rating
+
+| Total Score | Rating | Color |
+|------------|--------|-------|
+| 0-10 | Low | Green |
+| 11-30 | Moderate | Yellow |
+| 31-70 | High | Orange |
+| 71+ | Critical | Red |
+
+---
+
+## Phase 3: Trend Analysis
+
+If `config.json` has multiple scans with the same skill (indicating re-scans), compare:
+
+- Finding counts: did they go up or down?
+- Severity distribution: are new findings lower severity (good) or higher (bad)?
+- Remediation rate: what percentage of prior findings have been fixed?
+
+If this is the first scan, skip trend analysis and note "Baseline scan — no prior data for comparison."
+
+---
+
+## Phase 4: Generate Executive Summary
+
+Write `.zentra/reports/executive-summary.md`:
+
+```markdown
+# Security Assessment — Executive Summary
+
+- **Date**: [YYYY-MM-DD]
+- **Target**: [from config.json]
+- **Risk Rating**: [Critical/High/Moderate/Low] ([Total Score])
+- **Assessment Type**: [list scanners that ran]
+
+---
+
+## Executive Overview
+
+[3-4 sentence summary: what was assessed, the overall risk posture, the most critical issues, and the recommended immediate actions. Written for a non-technical audience — no jargon, no CWE numbers.]
+
+---
+
+## Risk Dashboard
+
+### Findings Summary
+
+| Severity | Total | Confirmed | Fixed | Remaining |
+|----------|-------|-----------|-------|-----------|
+| Critical | N | N | N | N |
+| High | N | N | N | N |
+| Medium | N | N | N | N |
+| Low | N | N | N | N |
+
+### Risk Score: [N] / [Rating]
+
+[Visual bar: xxxxxxxx-- 72/100 — Critical]
+
+### Trend
+
+[If prior scans exist: "Compared to [date]: findings [increased/decreased] by N, risk score [up/down] by N"]
+[If first scan: "Baseline assessment — future scans will show trends"]
+
+---
+
+## Critical Issues Requiring Immediate Action
+
+[Numbered list of Critical + Confirmed High findings. For each:]
+
+1. **[Title]** — [one sentence impact description]
+   - Status: [Confirmed/Unconfirmed] | [Fixed/Unfixed]
+   - Affected: [file/component]
+   - Risk: [what could happen if exploited]
+
+---
+
+## Compliance Status
+
+[If compliance was run:]
+
+| Framework | Status | Non-Compliant Controls |
+|-----------|--------|----------------------|
+| SOC 2 | N non-compliant | [list] |
+| PCI-DSS | N non-compliant | [list] |
+
+[If compliance was not run: "Compliance assessment not yet performed. Run /zentra-compliance to map findings to regulatory frameworks."]
+
+---
+
+## Remediation Progress
+
+[If remediate was run:]
+
+- **Patches Applied**: N / M patchable findings
+- **Verified Fixes**: N
+- **Remaining**: N findings awaiting remediation
+
+[If not run: "Automated remediation not yet performed. Run /zentra-remediate to generate and apply patches."]
+
+---
+
+## Recommendations
+
+### Immediate (This Sprint)
+[Critical + High confirmed findings — specific actions]
+
+### Short-Term (Next 30 Days)
+[Remaining High + Medium findings]
+
+### Long-Term (Next Quarter)
+[Low findings, architectural improvements, process changes]
+
+---
+
+## Assessment Coverage
+
+| Scanner | Status | Findings |
+|---------|--------|----------|
+| Threat Model | [Run/Not Run] | [N threats identified] |
+| Code Recon (SAST) | [Run/Not Run] | [N findings] |
+| IaC Scan | [Run/Not Run] | [N findings] |
+| Supply Chain (SCA) | [Run/Not Run] | [N findings] |
+| API Scan | [Run/Not Run] | [N findings] |
+| Pentester (DAST) | [Run/Not Run] | [N confirmed] |
+| Remediation | [Run/Not Run] | [N patched] |
+| Compliance | [Run/Not Run] | [N frameworks] |
+
+---
+
+*Generated by Zentra Security Skills v2.0*
+*Assessment date: [YYYY-MM-DD]*
+```
+
+Update `config.json` scans array.
+
+---
+
+## Phase 5: Handoff
+
+> **Executive report generated** at `.zentra/reports/executive-summary.md`.
+>
+> Risk Rating: **[Rating]** (Score: [N])
+>
+> **Pipeline complete.** All available data has been synthesized. You can:
+> 1. **Re-run scanners** for a fresh assessment
+> 2. **Run Remediate** to fix outstanding findings
+> 3. **Done**
+
+---
+
+*v1.0 — rafael@kodecraft.dev*
