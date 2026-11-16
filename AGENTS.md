@@ -1,6 +1,6 @@
 # Zentra - Security Skills
 
-Zentra is a security skill library for Claude Code, OpenCode, Cursor and Codex. It provides 14 skills; it does not itself supply an isolated agent runtime. Use `/zentra` for status where supported. Use skills for the requested security/development workflow, not as automatic authorization to audit unrelated work.
+Zentra is a security skill library for Claude Code, OpenCode, Cursor, Codex, Pi, DeepSeek Harness, Kimi Code, Gemini CLI, Qwen Code and compatible Agent Skills hosts. It provides 14 skills; it does not itself supply an isolated agent runtime. Use `/zentra` for status where supported, or the host's native skill discovery. Use skills for the requested security/development workflow, not as automatic authorization to audit unrelated work.
 
 ## Available skills
 
@@ -66,3 +66,10 @@ The sync script derives flat Codex/Cursor adapters, OpenCode commands and adjace
 | OpenCode | Native skill links plus copied commands/agent |
 | Cursor | Copied `.cursor/rules/zentra-*.mdc` and adjacent resource directories |
 | Codex | Native `~/.codex/skills/zentra-*`, local `~/plugins/zentra` plugin/marketplace and legacy `~/.codex/zentra/` adapters/resources |
+| Pi | Complete bundles in `~/.pi/agent/skills/`; optional Pi package through `pi.skills` |
+| DeepSeek Harness | Complete bundles in `~/.dsh/skills/` |
+| Kimi Code | Complete bundles in `~/.kimi-code/skills/` |
+| Gemini CLI / Qwen Code | Complete bundles in `~/.gemini/skills/` or `~/.qwen/skills/` |
+| Shared Agent Skills | Complete bundles in `~/.agents/skills/` for compatible hosts |
+
+New native targets also support project-local roots. See [HARNESS_SUPPORT.md](HARNESS_SUPPORT.md) for environment overrides, invocation, update ownership and testing boundaries. Native installation must preserve bundled verifier scripts/references and existing model/provider configuration. Do not invent harness-specific commands or claim independent review when fresh sessions are unavailable.

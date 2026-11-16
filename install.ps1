@@ -1,6 +1,50 @@
-# Zentra Security Skills — Windows Installer
+param(
+    [ValidateSet('pi', 'deepseek', 'kimi', 'gemini', 'qwen', 'agents', 'all')]
+    [string[]]$Target,
+    [ValidateSet('user', 'project')][string]$Scope = 'user',
+    [string]$ProjectRoot,
+    [string]$SkillsDir,
+    [string]$ProfileRoot,
+    [switch]$DryRun,
+    [switch]$List
+)
+
+# Zentra Security Skills - Windows Installer
 $ErrorActionPreference = "Stop"
 $ZentraDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+$nativeInstaller = Join-Path $ZentraDir 'scripts/install_skills.py'
+$zentraPython = $null
+foreach ($candidate in @('python', 'python3')) {
+    $foundPython = Get-Command $candidate -ErrorAction SilentlyContinue
+    if ($foundPython) { $zentraPython = $foundPython.Source; break }
+}
+$nativeLabels = [ordered]@{
+    pi = 'Pi'; deepseek = 'DeepSeek Harness'; kimi = 'Kimi Code'
+    gemini = 'Gemini CLI'; qwen = 'Qwen Code'
+}
+if ($Target -or $List -or $DryRun -or $SkillsDir -or $ProfileRoot -or $ProjectRoot -or $Scope -ne 'user') {
+    if (-not $zentraPython) { throw 'Python 3.11+ is required for native harness installation.' }
+    $nativeArguments = @()
+    foreach ($name in $Target) { $nativeArguments += @('--target', $name) }
+    $nativeArguments += @('--scope', $Scope)
+    if ($ProjectRoot) { $nativeArguments += @('--project-root', $ProjectRoot) }
+    if ($SkillsDir) { $nativeArguments += @('--skills-dir', $SkillsDir) }
+    if ($ProfileRoot) { $nativeArguments += @('--home', $ProfileRoot) }
+    if ($DryRun) { $nativeArguments += '--dry-run' }
+    if ($List) { $nativeArguments += '--list' }
+    & $zentraPython $nativeInstaller @nativeArguments
+    exit $LASTEXITCODE
+}
+$nativeTargets = @()
+if ($zentraPython) {
+    $nativeTargets = @(& $zentraPython $nativeInstaller --detect)
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warning 'Native harness discovery unavailable; Python 3.11+ is required.'
+        $nativeTargets = @()
+        $zentraPython = $null
+    }
+}
 
 Write-Host " ______  ______   ___   __    _________  ______    ________     " -ForegroundColor Cyan
 Write-Host "/_____/\/_____/\ /__/\ /__/\ /________/\/_____/\  /_______/\    " -ForegroundColor Cyan
@@ -111,7 +155,7 @@ if ($hasCodex) {
 Write-Host ""
 
 # --- No agents found ---
-if (-not $hasClaude -and -not $hasOpenCode -and -not $hasCursor -and -not $hasCodex) {
+if (-not $hasClaude -and -not $hasOpenCode -and -not $hasCursor -and -not $hasCodex -and -not $zentraPython) {
     Write-Host "No supported agents found." -ForegroundColor Red
     Write-Host "Install Claude Code (https://claude.ai/code), OpenCode (https://opencode.ai), Cursor IDE, or Codex CLI first."
     exit 1
@@ -126,8 +170,11 @@ if ($hasClaude)   { $options += "Claude Code" }
 if ($hasOpenCode) { $options += "OpenCode" }
 if ($hasCursor)   { $options += "Cursor IDE" }
 if ($hasCodex)    { $options += "Codex CLI" }
+foreach ($name in $nativeTargets) { $options += $nativeLabels[$name] }
+if ($zentraPython) { $options += 'Shared Agent Skills' }
 
 $platformCount = @($hasClaude, $hasOpenCode, $hasCursor, $hasCodex) | Where-Object { $_ } | Measure-Object | Select-Object -ExpandProperty Count
+$platformCount += $nativeTargets.Count
 if ($platformCount -gt 1) { $options += "All" }
 $options += "Cancel"
 
@@ -149,6 +196,22 @@ $selected = $options[$choiceNum - 1]
 if ($selected -eq "Cancel") {
     Write-Host "Installation cancelled."
     exit 0
+}
+
+foreach ($name in $nativeTargets) {
+    if ($selected -eq $nativeLabels[$name]) {
+        & $zentraPython $nativeInstaller --target $name
+        exit $LASTEXITCODE
+    }
+}
+if ($selected -eq 'Shared Agent Skills') {
+    & $zentraPython $nativeInstaller --target agents
+    exit $LASTEXITCODE
+}
+if ($selected -eq 'All' -and $nativeTargets.Count -gt 0) {
+    & $zentraPython $nativeInstaller --target all
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    if (-not $hasClaude -and -not $hasOpenCode -and -not $hasCursor -and -not $hasCodex) { exit 0 }
 }
 
 $installClaude   = ($selected -eq "Claude Code") -or ($selected -eq "All" -and $hasClaude)

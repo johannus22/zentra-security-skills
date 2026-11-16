@@ -3,6 +3,50 @@ set -euo pipefail
 
 ZENTRA_DIR="$(cd "$(dirname "$0")" && pwd)"
 
+# Explicit native targets also work before a harness is installed. The Python
+# helper owns the shared discovery paths and complete bundle update checks.
+ZENTRA_PYTHON="${ZENTRA_PYTHON:-}"
+if [ -n "$ZENTRA_PYTHON" ]; then
+    :
+elif command -v python3 >/dev/null 2>&1; then
+    ZENTRA_PYTHON="$(command -v python3)"
+elif command -v python >/dev/null 2>&1; then
+    ZENTRA_PYTHON="$(command -v python)"
+fi
+if [ "$#" -gt 0 ]; then
+    if [ -z "$ZENTRA_PYTHON" ]; then
+        echo "Python 3.11+ is required for native harness installation." >&2
+        exit 1
+    fi
+    exec "$ZENTRA_PYTHON" "$ZENTRA_DIR/scripts/install_skills.py" "$@"
+fi
+
+native_label() {
+    case "$1" in
+        pi) echo "Pi" ;;
+        deepseek) echo "DeepSeek Harness" ;;
+        kimi) echo "Kimi Code" ;;
+        gemini) echo "Gemini CLI" ;;
+        qwen) echo "Qwen Code" ;;
+    esac
+}
+NATIVE_TARGETS=()
+NATIVE_COUNT=0
+if [ -n "$ZENTRA_PYTHON" ]; then
+    if native_detected=$("$ZENTRA_PYTHON" "$ZENTRA_DIR/scripts/install_skills.py" --detect); then
+        while IFS= read -r native_target; do
+            native_target="${native_target%$'\r'}"
+            if [ -n "$native_target" ]; then
+                NATIVE_TARGETS+=("$native_target")
+                NATIVE_COUNT=$((NATIVE_COUNT + 1))
+            fi
+        done <<< "$native_detected"
+    else
+        echo "Native harness discovery unavailable; Python 3.11+ is required." >&2
+        ZENTRA_PYTHON=""
+    fi
+fi
+
 cat << "EOF"
  ______  ______   ___   __    _________  ______    ________
 /_____/\/_____/\ /__/\ /__/\ /________/\/_____/\  /_______/\
@@ -115,9 +159,9 @@ fi
 echo ""
 
 # --- No agents found ---
-if ! $HAS_CLAUDE && ! $HAS_OPENCODE && ! $HAS_CURSOR && ! $HAS_CODEX; then
+if ! $HAS_CLAUDE && ! $HAS_OPENCODE && ! $HAS_CURSOR && ! $HAS_CODEX && [ -z "$ZENTRA_PYTHON" ]; then
     echo "No supported agents found."
-    echo "Install Claude Code (https://claude.ai/code), OpenCode (https://opencode.ai), Cursor (https://cursor.com), or Codex CLI (https://openai.com/codex) first."
+    echo "Install a supported agent, or Python 3.11+ to install portable Agent Skills."
     exit 1
 fi
 
@@ -132,6 +176,10 @@ if $HAS_CLAUDE;    then OPTIONS+=("Claude Code"); fi
 if $HAS_OPENCODE;  then OPTIONS+=("OpenCode"); fi
 if $HAS_CURSOR;    then OPTIONS+=("Cursor IDE"); fi
 if $HAS_CODEX;    then OPTIONS+=("Codex CLI"); fi
+for native_target in ${NATIVE_TARGETS[@]+"${NATIVE_TARGETS[@]}"}; do
+    OPTIONS+=("$(native_label "$native_target")")
+done
+if [ -n "$ZENTRA_PYTHON" ]; then OPTIONS+=("Shared Agent Skills"); fi
 
 # Add "All" if more than one platform detected
 PLATFORM_COUNT=0
@@ -139,6 +187,7 @@ $HAS_CLAUDE   && PLATFORM_COUNT=$((PLATFORM_COUNT + 1))
 $HAS_OPENCODE && PLATFORM_COUNT=$((PLATFORM_COUNT + 1))
 $HAS_CURSOR   && PLATFORM_COUNT=$((PLATFORM_COUNT + 1))
 $HAS_CODEX    && PLATFORM_COUNT=$((PLATFORM_COUNT + 1))
+PLATFORM_COUNT=$((PLATFORM_COUNT + NATIVE_COUNT))
 if [ "$PLATFORM_COUNT" -gt 1 ]; then
     OPTIONS+=("All")
 fi
@@ -151,6 +200,7 @@ done
 
 echo ""
 read -rp "Select [1-${#OPTIONS[@]}]: " choice
+choice="${choice%$'\r'}"
 
 if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt "${#OPTIONS[@]}" ]; then
     echo "Invalid selection. Exiting."
@@ -162,6 +212,19 @@ SELECTED="${OPTIONS[$((choice - 1))]}"
 if [ "$SELECTED" = "Cancel" ]; then
     echo "Installation cancelled."
     exit 0
+fi
+
+for native_target in ${NATIVE_TARGETS[@]+"${NATIVE_TARGETS[@]}"}; do
+    if [ "$SELECTED" = "$(native_label "$native_target")" ]; then
+        exec "$ZENTRA_PYTHON" "$ZENTRA_DIR/scripts/install_skills.py" --target "$native_target"
+    fi
+done
+if [ "$SELECTED" = "Shared Agent Skills" ]; then
+    exec "$ZENTRA_PYTHON" "$ZENTRA_DIR/scripts/install_skills.py" --target agents
+fi
+if [ "$SELECTED" = "All" ] && [ "$NATIVE_COUNT" -gt 0 ]; then
+    "$ZENTRA_PYTHON" "$ZENTRA_DIR/scripts/install_skills.py" --target all
+    if ! $HAS_CLAUDE && ! $HAS_OPENCODE && ! $HAS_CURSOR && ! $HAS_CODEX; then exit 0; fi
 fi
 
 INSTALL_CLAUDE=false

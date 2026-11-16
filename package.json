@@ -1,6 +1,6 @@
 {
   "name": "zentra-security",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Security and secure coding framework for AI agents. 14 skills with independent change verification, modern web audits, evidence-based compliance and fail-closed acceptance gates.",
   "keywords": [
     "security",
@@ -22,7 +22,13 @@
     "secure-coding",
     "verification",
     "accessibility",
-    "audit"
+    "audit",
+    "pi-package",
+    "deepseek-harness",
+    "kimi-code",
+    "gemini-cli",
+    "qwen-code",
+    "agent-skills"
   ],
   "author": {
     "name": "Rafael Masilungan",
@@ -56,7 +62,8 @@
     "VERSION",
     "RELEASING.md",
     "NOTICE",
-    "LICENSES/"
+    "LICENSES/",
+    "HARNESS_SUPPORT.md"
   ],
   "scripts": {
     "test": "python -m unittest discover -s tests -v",
@@ -65,5 +72,10 @@
     "version:check": "python scripts/version.py check",
     "version:bump": "python scripts/version.py bump",
     "release:notes": "python scripts/version.py notes"
+  },
+  "pi": {
+    "skills": [
+      "./skills"
+    ]
   }
 }

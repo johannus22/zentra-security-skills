@@ -14,6 +14,8 @@ def main():
         errors.append(str(error))
     skills = sorted((ROOT / "skills").glob("zentra-*"))
     package = json.loads((ROOT / "package.json").read_text(encoding="utf-8-sig"))
+    if package.get("pi", {}).get("skills") != ["./skills"] or "pi-package" not in package["keywords"]:
+        errors.append("Pi package must expose canonical ./skills and declare the pi-package keyword")
     for folder in skills:
         source = (folder / "SKILL.md").read_text(encoding="utf-8-sig")
         try:
@@ -38,7 +40,7 @@ def main():
     marketplace = json.loads((ROOT / ".claude-plugin/marketplace.json").read_text(encoding="utf-8-sig"))
     if marketplace["plugins"][0]["version"] != package["version"]:
         errors.append("Version mismatch: Claude marketplace")
-    for required in ("skills/", ".codex/", ".cursor/", ".opencode/", "scripts/"):
+    for required in ("skills/", ".codex/", ".cursor/", ".opencode/", "scripts/", "HARNESS_SUPPORT.md"):
         if required not in package["files"]:
             errors.append(f"Missing package resource tree: {required}")
     if errors:

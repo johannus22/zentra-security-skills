@@ -2,7 +2,7 @@
 
 Security and secure coding skills for AI coding agents. Zentra helps agents build securely, challenge their own findings through independent review, and support technical audits with checked evidence.
 
-**Version 3.0.0 · 14 skills · Claude Code, OpenCode, Cursor and Codex CLI**
+**Version 3.1.0 · 14 skills · Claude Code, OpenCode, Cursor, Codex, Pi, DeepSeek Harness, Kimi Code, Gemini CLI and Qwen Code**
 
 ## Getting started
 
@@ -24,7 +24,19 @@ Set-Location zentra-security-skills
 .\install.ps1
 ```
 
-Keep the checkout in place: native skill installations link to it. See [platform setup](#platform-setup) for installation locations and marketplace installation.
+Keep the checkout in place for linked integrations. Pi, DeepSeek Harness, Kimi Code, Gemini CLI and Qwen Code also have explicit installation targets that copy complete skill bundles:
+
+```bash
+bash install.sh --target pi --target deepseek --target kimi
+bash install.sh --target agents --scope project --project-root /path/to/project
+```
+
+```powershell
+.\install.ps1 -Target pi,deepseek,kimi
+.\install.ps1 -Target agents -Scope project -ProjectRoot C:\Projects\my-app
+```
+
+Use `--target gemini` or `--target qwen` for those native directories, or `--target agents` for a shared installation used by compatible Agent Skills harnesses. Explicit targets work before a harness is installed. See [platform setup](#platform-setup) and the [harness support guide](HARNESS_SUPPORT.md) for invocation, Pi packages, custom roots and safe updates.
 
 Open the project you want to work on in your agent, then choose a starting point:
 
@@ -37,7 +49,7 @@ Open the project you want to work on in your agent, then choose a starting point
 | Assess a repository | `Run the Zentra pipeline on this repository.` |
 | Assess selected audit controls | `Run zentra-compliance for these controls using strict evidence verification: [framework and control IDs].` |
 
-Use `/zentra-<name>` where slash commands are supported, or ask by skill name. `/zentra` shows available skills and existing assessment status where supported.
+Use `/zentra-<name>` where Zentra slash-command wrappers are supported, `/skill:zentra-<name>` in Pi and Kimi Code, or ask by skill name. `/zentra` shows assessment status in hosts with that wrapper; other harnesses use their native skill catalog.
 
 Python **3.11+** and Git are required for the executable verification gate and framework checks. No third-party Python packages are required. Independent acceptance also needs fresh reviewer sessions; browser and live-target checks need appropriate tools and authorization. See [verification requirements](#strict-verification).
 
@@ -162,8 +174,16 @@ The [installer](#getting-started) detects supported agents and installs the sele
 | OpenCode | Skill links at `~/.config/opencode/skills/zentra-*`, plus copied commands and the Zentra agent |
 | Cursor | Rules at `~/.cursor/rules/zentra-*.mdc`, plus adjacent validator/reference directories |
 | Codex CLI | Native skills at `~/.codex/skills/zentra-*`, plugin link at `~/plugins/zentra`, marketplace registration and legacy adapters/resources |
+| Pi | Full bundles at `~/.pi/agent/skills/`, or a skill-only Pi package through `pi install .` |
+| DeepSeek Harness | Full bundles at `~/.dsh/skills/`; honors `DSH_HOME` |
+| Kimi Code | Full bundles at `~/.kimi-code/skills/`; honors `KIMI_CODE_HOME` |
+| Gemini CLI | Full bundles at `~/.gemini/skills/` |
+| Qwen Code | Full bundles at `~/.qwen/skills/` |
+| Shared Agent Skills | Full bundles at `~/.agents/skills/` for compatible hosts |
 
 Windows installations use directory junctions for linked folders. The Unix installer uses symlinks. Both installers copy the resources needed by flat Cursor and legacy Codex entrypoints.
+
+The new native targets copy canonical bundles, preserving scripts and references. They support project-local installation, dry runs, custom roots and hash-checked updates that stop on local edits or unmanaged conflicts. They do not modify provider settings or credentials. Details and primary documentation are in [HARNESS_SUPPORT.md](HARNESS_SUPPORT.md).
 
 ### Claude Code marketplace
 

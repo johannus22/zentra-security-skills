@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.1.0] - 2026-11-16
+
+### Added
+- Native Pi, official DeepSeek Harness, Kimi Code, Gemini CLI and Qwen Code installation targets, plus a shared Agent Skills target.
+- A standard-library Python installer with user/project/custom roots, environment overrides, dry runs, full resource copying and ownership-hash checks that preserve local edits.
+- Explicit Bash/PowerShell targets and native harness discovery in interactive menus.
+- Pi package metadata exposing the canonical skills without executable extensions.
+- Harness compatibility documentation and isolated installation/update regression coverage.
+
+
 ## [3.0.0] - 2026-11-16
 
 ### Added
