@@ -1,5 +1,5 @@
 ---
-description: "OWASP API Top 10 security analysis (REST, GraphQL, OpenAPI)"
+description: "Review OpenAPI, GraphQL and handlers against OWASP API Security Top 10:2023, including tenant authorization, resource abuse, webhooks and unsafe upstream consumption. Produces independently verifiable candidates."
 ---
 
-Load and execute the zentra-api-scan skill. Analyze API endpoints, OpenAPI/Swagger specs, and GraphQL schemas for OWASP API Top 10 vulnerabilities. $ARGUMENTS
+Load and execute the zentra-api-scan skill. $ARGUMENTS

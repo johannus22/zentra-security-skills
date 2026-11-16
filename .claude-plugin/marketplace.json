@@ -2,7 +2,7 @@
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "zentra",
   "metadata": {
-    "description": "Complete cybersecurity framework for Claude Code. Threat modeling, SAST, DAST, infrastructure scanning, supply chain analysis, API security, auto-remediation, compliance mapping, and executive reporting."
+    "description": "Security and secure coding framework for AI agents. 14 skills with independent change verification, modern web audits, evidence-based compliance and fail-closed acceptance gates."
   },
   "owner": {
     "name": "Rafael",
@@ -12,14 +12,14 @@
     {
       "name": "zentra",
       "source": "./",
-      "description": "Complete cybersecurity framework for Claude Code. 10 skills covering the full security lifecycle from threat modeling through compliance reporting.",
-      "version": "2.1.0",
+      "description": "Security and secure coding framework for AI agents. 14 skills with independent change verification, modern web audits, evidence-based compliance and fail-closed acceptance gates.",
+      "version": "3.0.0",
       "author": {
         "name": "Rafael",
         "email": "rafael@kodecraft.dev"
       },
       "category": "security",
-      "homepage": "https://github.com/Kodecraft-Dev/zentra",
+      "homepage": "https://github.com/johannus22/zentra-security-skills",
       "tags": [
         "security",
         "cybersecurity",
@@ -34,7 +34,8 @@
         "vulnerability-scanner",
         "playwright"
       ],
-      "strict": false
+      "strict": false,
+      "license": "Apache-2.0"
     }
   ]
 }

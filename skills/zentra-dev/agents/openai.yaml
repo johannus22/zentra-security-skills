@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zentra Dev Guard"
+  short_description: "Check changed files before commit"
+  default_prompt: "Use $zentra-dev to scan the changed files in this repo before they ship."

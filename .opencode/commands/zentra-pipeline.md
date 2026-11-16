@@ -1,5 +1,5 @@
 ---
-description: "Run the full Zentra security pipeline — spawns each skill as an isolated subagent"
+description: "Orchestrate threat modeling, security/web scans, independent verification, optional authorized DAST, evidence-based compliance and reporting. Uses isolated workers and one coordinator; incomplete phases fail closed."
 ---
 
-Load and execute the zentra-pipeline skill. Run the full security assessment pipeline against this project, spawning each phase as an isolated subagent. $ARGUMENTS
+Load and execute the zentra-pipeline skill. $ARGUMENTS

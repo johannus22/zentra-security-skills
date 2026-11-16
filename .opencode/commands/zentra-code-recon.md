@@ -1,5 +1,5 @@
 ---
-description: "OWASP Top 10 static code analysis (SAST)"
+description: "Analyze source for OWASP Top 10:2025 vulnerabilities and agent/tool trust-boundary failures. Produces evidence-backed candidates for independent verification, without executing target code."
 ---
 
-Load and execute the zentra-code-recon skill. Run static security analysis on this codebase for OWASP Top 10 vulnerabilities. Produce findings in .zentra/detailed-findings.md. $ARGUMENTS
+Load and execute the zentra-code-recon skill. $ARGUMENTS

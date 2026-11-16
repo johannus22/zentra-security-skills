@@ -1,7 +1,7 @@
 {
   "name": "zentra-security",
-  "version": "2.1.0",
-  "description": "Complete cybersecurity framework for AI coding agents. 10 skills: threat modeling, SAST, DAST, IaC scanning, SCA, API security, auto-remediation, compliance mapping, and executive reporting.",
+  "version": "3.0.0",
+  "description": "Security and secure coding framework for AI agents. 14 skills with independent change verification, modern web audits, evidence-based compliance and fail-closed acceptance gates.",
   "keywords": [
     "security",
     "cybersecurity",
@@ -18,27 +18,52 @@
     "claude-code",
     "claude-code-plugin",
     "ai-agent",
-    "appsec"
+    "appsec",
+    "secure-coding",
+    "verification",
+    "accessibility",
+    "audit"
   ],
   "author": {
     "name": "Rafael Masilungan",
     "email": "rafael@kodecraft.dev"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Kodecraft-Dev/zentra.git"
+    "url": "https://github.com/johannus22/zentra-security-skills.git"
   },
-  "homepage": "https://github.com/Kodecraft-Dev/zentra",
+  "homepage": "https://github.com/johannus22/zentra-security-skills",
   "bugs": {
-    "url": "https://github.com/Kodecraft-Dev/zentra/issues"
+    "url": "https://github.com/johannus22/zentra-security-skills/issues"
   },
   "files": [
     "skills/",
+    ".agents/",
+    ".codex-plugin/",
+    ".codex/",
+    ".cursor/",
+    ".claude-plugin/",
     ".opencode/",
     "opencode.json",
     "AGENTS.md",
+    "install.ps1",
+    "install.sh",
     "README.md",
-    "LICENSE"
-  ]
+    "LICENSE",
+    "scripts/",
+    "CHANGELOG.md",
+    "VERSION",
+    "RELEASING.md",
+    "NOTICE",
+    "LICENSES/"
+  ],
+  "scripts": {
+    "test": "python -m unittest discover -s tests -v",
+    "sync:skills": "python scripts/sync_skills.py",
+    "check:skills": "python scripts/check_framework.py",
+    "version:check": "python scripts/version.py check",
+    "version:bump": "python scripts/version.py bump",
+    "release:notes": "python scripts/version.py notes"
+  }
 }

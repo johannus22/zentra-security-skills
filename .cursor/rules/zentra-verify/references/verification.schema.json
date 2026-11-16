@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Kodecraft-Dev/zentra/verification-v1",
+  "title": "Zentra skill-pack verification run v1 (not the CLI wire format)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "run_id", "created_by", "status", "scope", "snapshot_sha256", "checks", "candidates", "controls", "run_sha256", "reviews"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "run_id": {"$ref": "#/$defs/text"},
+    "created_by": {"$ref": "#/$defs/text"},
+    "status": {"enum": ["complete", "incomplete"]},
+    "scope": {"$ref": "#/$defs/scope"},
+    "snapshot_sha256": {"$ref": "#/$defs/hash"},
+    "checks": {"type": "array", "minItems": 1, "maxItems": 10000, "items": {"$ref": "#/$defs/check"}},
+    "candidates": {"type": "array", "maxItems": 10000, "items": {"$ref": "#/$defs/candidate"}},
+    "controls": {"type": "array", "maxItems": 10000, "items": {"$ref": "#/$defs/control"}},
+    "run_sha256": {"$ref": "#/$defs/hash"},
+    "reviews": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/review"}}
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 1, "maxLength": 8192},
+    "hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "strings": {"type": "array", "maxItems": 10000, "uniqueItems": true, "items": {"$ref": "#/$defs/text"}},
+    "artifact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {"path": {"$ref": "#/$defs/text"}, "sha256": {"$ref": "#/$defs/hash"}}
+    },
+    "citation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256", "line", "quote"],
+      "properties": {
+        "path": {"$ref": "#/$defs/text"}, "sha256": {"$ref": "#/$defs/hash"},
+        "line": {"type": "integer", "minimum": 1}, "quote": {"$ref": "#/$defs/text"}
+      }
+    },
+    "scope": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "revision", "files", "exclusions", "requirements", "candidate_ids", "control_ids", "author_sessions", "coverage_complete"],
+      "properties": {
+        "kind": {"enum": ["repository", "changes"]},
+        "revision": {"type": "string", "pattern": "^[a-f0-9]{40,64}$"},
+        "files": {
+          "type": "array", "minItems": 1, "maxItems": 100000,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+            "properties": {"path": {"$ref": "#/$defs/text"}, "sha256": {"anyOf": [{"$ref": "#/$defs/hash"}, {"type": "null"}]}}
+          }
+        },
+        "exclusions": {
+          "type": "array", "maxItems": 1000,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["path", "reason"],
+            "properties": {"path": {"$ref": "#/$defs/text"}, "reason": {"$ref": "#/$defs/text"}}
+          }
+        },
+        "requirements": {
+          "type": "array", "minItems": 1, "maxItems": 10000,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["id", "description", "check_ids"],
+            "properties": {"id": {"$ref": "#/$defs/text"}, "description": {"$ref": "#/$defs/text"}, "check_ids": {"$ref": "#/$defs/strings"}}
+          }
+        },
+        "control_ids": {"$ref": "#/$defs/strings"},
+        "candidate_ids": {"$ref": "#/$defs/strings"},
+        "author_sessions": {"$ref": "#/$defs/strings"},
+        "coverage_complete": {"type": "boolean"}
+      }
+    },
+    "check": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "status", "required", "reason", "command", "exit_code", "receipt", "expected", "observed", "snapshot_sha256"],
+      "properties": {
+        "id": {"$ref": "#/$defs/text"},
+        "status": {"enum": ["passed", "failed", "not_run", "not_applicable"]},
+        "required": {"type": "boolean"}, "reason": {"$ref": "#/$defs/text"},
+        "command": {"$ref": "#/$defs/text"}, "exit_code": {"anyOf": [{"type": "integer"}, {"type": "null"}]},
+        "receipt": {"anyOf": [{"$ref": "#/$defs/artifact"}, {"type": "null"}]},
+        "expected": {"$ref": "#/$defs/text"}, "observed": {"$ref": "#/$defs/text"},
+        "snapshot_sha256": {"$ref": "#/$defs/hash"}
+      }
+    },
+    "review": {
+      "type": "object", "additionalProperties": false,
+      "required": ["session_id", "role", "accepted_sha256", "read_paths"],
+      "properties": {
+        "session_id": {"$ref": "#/$defs/text"}, "role": {"enum": ["adversarial", "final"]},
+        "accepted_sha256": {"$ref": "#/$defs/hash"}, "read_paths": {"$ref": "#/$defs/strings"}
+      }
+    },
+    "candidate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "discovered_by", "disposition", "record", "record_sha256", "reviews"],
+      "properties": {
+        "id": {"$ref": "#/$defs/text"}, "discovered_by": {"$ref": "#/$defs/text"},
+        "disposition": {"enum": ["source_verified", "runtime_verified", "needs_validation", "rejected", "incomplete"]},
+        "record_sha256": {"$ref": "#/$defs/hash"},
+        "reviews": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/review"}},
+        "record": {
+          "type": "object", "additionalProperties": false,
+          "required": ["title", "severity", "rationale", "recommendation", "principal", "input", "boundary", "resource", "impact", "controls_reviewed", "citations", "receipts", "check_ids", "blockers", "next_step"],
+          "properties": {
+            "title": {"$ref": "#/$defs/text"},
+            "severity": {"enum": ["critical", "high", "medium", "low", "info", null]},
+            "rationale": {"$ref": "#/$defs/text"}, "recommendation": {"$ref": "#/$defs/text"},
+            "principal": {"$ref": "#/$defs/text"}, "input": {"$ref": "#/$defs/text"},
+            "boundary": {"$ref": "#/$defs/text"}, "resource": {"$ref": "#/$defs/text"},
+            "impact": {"$ref": "#/$defs/text"}, "controls_reviewed": {"$ref": "#/$defs/text"},
+            "citations": {"type": "array", "maxItems": 32, "items": {"$ref": "#/$defs/citation"}},
+            "receipts": {"type": "array", "maxItems": 32, "items": {"$ref": "#/$defs/artifact"}},
+            "check_ids": {"$ref": "#/$defs/strings"}, "blockers": {"$ref": "#/$defs/strings"}, "next_step": {"$ref": "#/$defs/text"}
+          }
+        }
+      }
+    },
+    "control": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "assessed_by", "record", "record_sha256", "reviews"],
+      "properties": {
+        "id": {"$ref": "#/$defs/text"}, "assessed_by": {"$ref": "#/$defs/text"},
+        "record_sha256": {"$ref": "#/$defs/hash"},
+        "reviews": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/review"}},
+        "record": {
+          "type": "object", "additionalProperties": false,
+          "required": ["framework", "version", "reference_url", "status", "rationale", "period", "evidence", "check_ids"],
+          "properties": {
+            "framework": {"$ref": "#/$defs/text"}, "version": {"$ref": "#/$defs/text"},
+            "reference_url": {"$ref": "#/$defs/text"},
+            "status": {"enum": ["satisfied", "unsatisfied", "not_assessed", "not_applicable"]},
+            "rationale": {"$ref": "#/$defs/text"}, "period": {"$ref": "#/$defs/text"},
+            "evidence": {"type": "array", "maxItems": 32, "items": {"$ref": "#/$defs/artifact"}},
+            "check_ids": {"$ref": "#/$defs/strings"}
+          }
+        }
+      }
+    }
+  }
+}

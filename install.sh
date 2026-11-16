@@ -63,7 +63,7 @@ CODEX_EXISTS=false
 
 if command -v codex &>/dev/null || [ -d "$HOME/.codex" ]; then
     HAS_CODEX=true
-    if [ -d "$HOME/.codex/zentra" ] && ls "$HOME/.codex/zentra"/zentra-*.md &>/dev/null; then
+    if [ -d "$HOME/.codex/skills/zentra-code-recon" ] || [ -d "$HOME/plugins/zentra" ] || { [ -d "$HOME/.codex/zentra" ] && ls "$HOME/.codex/zentra"/zentra-*.md &>/dev/null; }; then
         CODEX_EXISTS=true
     fi
 fi
@@ -203,8 +203,9 @@ if $INSTALL_CURSOR; then
 fi
 
 if $INSTALL_CODEX; then
-    codex_skill_count=$(find "$ZENTRA_DIR/.codex" -name "zentra-*.md" 2>/dev/null | wc -l)
-    TOTAL_STEPS=$((TOTAL_STEPS + codex_skill_count + 1))
+    codex_skill_count=$(find "$ZENTRA_DIR/skills" -maxdepth 1 -type d -name "zentra-*" 2>/dev/null | wc -l)
+    codex_legacy_count=$(find "$ZENTRA_DIR/.codex" -name "zentra-*.md" 2>/dev/null | wc -l)
+    TOTAL_STEPS=$((TOTAL_STEPS + codex_skill_count + codex_legacy_count + 3))
 fi
 
 # --- Silent install functions ---
@@ -268,9 +269,95 @@ install_cursor() {
         CURRENT_STEP=$((CURRENT_STEP + 1))
         show_progress "$CURRENT_STEP" "$TOTAL_STEPS"
     done
+    for resource_dir in "$ZENTRA_DIR"/.cursor/rules/zentra-*/; do
+        [ -d "$resource_dir" ] || continue
+        cp -R "${resource_dir%/}" "$CURSOR_RULES_DIR/"
+    done
 }
 
 install_codex() {
+    CODEX_SKILLS_DIR="$HOME/.codex/skills"
+    mkdir -p "$CODEX_SKILLS_DIR"
+
+    for skill_dir in "$ZENTRA_DIR"/skills/zentra-*/; do
+        [ -d "$skill_dir" ] || continue
+        skill_name=$(basename "$skill_dir")
+        target="$CODEX_SKILLS_DIR/$skill_name"
+        if [ -L "$target" ] || [ -d "$target" ]; then
+            rm -rf "$target"
+        fi
+        ln -s "$skill_dir" "$target"
+        CURRENT_STEP=$((CURRENT_STEP + 1))
+        show_progress "$CURRENT_STEP" "$TOTAL_STEPS"
+    done
+
+    AGENTS_HOME_DIR="$HOME/.agents/plugins"
+    PLUGINS_HOME_DIR="$HOME/plugins"
+    mkdir -p "$AGENTS_HOME_DIR" "$PLUGINS_HOME_DIR"
+
+    local plugin_target="$PLUGINS_HOME_DIR/zentra"
+    if [ -L "$plugin_target" ] || [ -d "$plugin_target" ]; then
+        rm -rf "$plugin_target"
+    fi
+    ln -s "$ZENTRA_DIR" "$plugin_target"
+    CURRENT_STEP=$((CURRENT_STEP + 1))
+    show_progress "$CURRENT_STEP" "$TOTAL_STEPS"
+
+    MARKETPLACE_PATH="$AGENTS_HOME_DIR/marketplace.json"
+    if command -v python3 &>/dev/null; then
+        python3 - "$MARKETPLACE_PATH" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1]).expanduser()
+path.parent.mkdir(parents=True, exist_ok=True)
+
+entry = {
+    "name": "zentra",
+    "source": {
+        "source": "local",
+        "path": "./plugins/zentra"
+    },
+    "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+    },
+    "category": "Security"
+}
+
+if path.exists():
+    data = json.loads(path.read_text(encoding="utf-8"))
+else:
+    data = {
+        "name": "local-marketplace",
+        "interface": {
+            "displayName": "Local Plugins"
+        },
+        "plugins": []
+    }
+
+plugins = data.setdefault("plugins", [])
+plugins = [plugin for plugin in plugins if plugin.get("name") != "zentra"]
+plugins.append(entry)
+data["plugins"] = plugins
+
+if not isinstance(data.get("interface"), dict):
+    data["interface"] = {"displayName": "Local Plugins"}
+else:
+    data["interface"].setdefault("displayName", "Local Plugins")
+data.setdefault("name", "local-marketplace")
+
+path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+PY
+    else
+        echo ""
+        echo "Warning: python3 was not found, so Codex marketplace.json was not updated."
+        echo "Add a local plugin entry for ~/plugins/zentra to ~/.agents/plugins/marketplace.json manually."
+    fi
+    CURRENT_STEP=$((CURRENT_STEP + 1))
+    show_progress "$CURRENT_STEP" "$TOTAL_STEPS"
+
     CODEX_ZENTRA_DIR="$HOME/.codex/zentra"
     mkdir -p "$CODEX_ZENTRA_DIR"
 
@@ -279,6 +366,10 @@ install_codex() {
         cp "$skill_file" "$CODEX_ZENTRA_DIR/$(basename "$skill_file")"
         CURRENT_STEP=$((CURRENT_STEP + 1))
         show_progress "$CURRENT_STEP" "$TOTAL_STEPS"
+    done
+    for resource_dir in "$ZENTRA_DIR"/.codex/zentra-*/; do
+        [ -d "$resource_dir" ] || continue
+        cp -R "${resource_dir%/}" "$CODEX_ZENTRA_DIR/"
     done
 
     CODEX_AGENTS="$HOME/.codex/AGENTS.md"
@@ -343,4 +434,4 @@ echo "  /zentra-dev           — Quick scan of changed files"
 echo "  /zentra               — Show pipeline status"
 echo ""
 echo "Cursor IDE: Ask the AI 'run zentra-code-recon' — rules are now in ~/.cursor/rules/"
-echo "Codex CLI: Ask the AI 'run zentra-code-recon' — full skill files are in ~/.codex/zentra/"
+echo "Codex CLI: Ask the AI 'run zentra-code-recon' - native skills are in ~/.codex/skills/ and the plugin is linked at ~/plugins/zentra"

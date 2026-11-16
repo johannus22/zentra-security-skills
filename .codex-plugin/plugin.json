@@ -1,0 +1,49 @@
+{
+  "name": "zentra",
+  "version": "3.0.0",
+  "description": "Security and secure coding framework for AI agents. 14 skills with independent change verification, modern web audits, evidence-based compliance and fail-closed acceptance gates.",
+  "author": {
+    "name": "Rafael Masilungan",
+    "email": "rafael@kodecraft.dev",
+    "url": "https://github.com/Kodecraft-Dev"
+  },
+  "homepage": "https://github.com/johannus22/zentra-security-skills",
+  "repository": "https://github.com/johannus22/zentra-security-skills",
+  "license": "Apache-2.0",
+  "keywords": [
+    "security",
+    "cybersecurity",
+    "appsec",
+    "devsecops",
+    "owasp",
+    "sast",
+    "dast",
+    "supply-chain",
+    "iac",
+    "compliance",
+    "codex",
+    "skill"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Zentra",
+    "shortDescription": "Secure coding, independent verification and audits",
+    "longDescription": "Security and secure coding framework for AI agents. 14 skills with independent change verification, modern web audits, evidence-based compliance and fail-closed acceptance gates.",
+    "developerName": "Kodecraft",
+    "category": "Security",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/johannus22/zentra-security-skills",
+    "defaultPrompt": [
+      "Run zentra-code-recon against this repo.",
+      "Run the full Zentra pipeline on this project.",
+      "Use Zentra to review this API for OWASP risks.",
+      "Use zentra-verify to independently check the agent changes.",
+      "Use zentra-web-audit to check security, accessibility and browser practices."
+    ],
+    "brandColor": "#0F766E",
+    "screenshots": []
+  }
+}

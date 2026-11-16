@@ -1,0 +1,79 @@
+name: Prepare GitHub release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    uses: ./.github/workflows/validate.yml
+
+  package:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+      - name: Verify tag matches release metadata
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python scripts/version.py check --tag "$RELEASE_TAG"
+      - name: Build package and changelog notes
+        run: |
+          mkdir release-artifacts
+          python scripts/version.py notes > release-notes.md
+          npm pack --ignore-scripts --pack-destination release-artifacts
+      - name: Compute package checksum
+        working-directory: release-artifacts
+        run: sha256sum *.tgz > SHA256SUMS
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: release-bundle
+          path: |
+            release-artifacts/
+            release-notes.md
+          if-no-files-found: error
+          retention-days: 7
+
+  draft:
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      # No repository checkout or project code runs with the write-capable token.
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          name: release-bundle
+      - name: Verify downloaded package checksums
+        working-directory: release-artifacts
+        run: sha256sum --strict --check SHA256SUMS
+      - name: Create a draft release for review
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          flags=()
+          if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi
+          gh release create "$RELEASE_TAG" \
+            release-artifacts/*.tgz release-artifacts/SHA256SUMS \
+            --repo "$GITHUB_REPOSITORY" --verify-tag --draft \
+            --title "Zentra Security Skills $RELEASE_TAG" \
+            --notes-file release-notes.md "${flags[@]}"

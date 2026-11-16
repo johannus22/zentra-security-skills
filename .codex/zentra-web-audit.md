@@ -1,0 +1,31 @@
+# Zentra - Web Audit
+
+Review the requested web scope against current platform guidance and observable behavior. Source review is read-only; browser requests and test execution must stay within existing authorization. Never apply fixes during the audit.
+
+## Phase 1: Scope and guidance
+
+Read the requested diff or routes, supported browsers, framework versions, deployment assumptions, and accessibility target. Default to WCAG 2.2 AA as a technical review target when unspecified; label this assumption. Identify SSR/client boundaries and critical journeys including authentication and forms.
+
+Consult modern-web-guidance when available, searching and retrieving only applicable topics before reviewing HTML, CSS or browser JavaScript. Otherwise use primary sources: [MDN security](https://developer.mozilla.org/en-US/docs/Web/Security/Practical_implementation_guides), [WCAG 2.2](https://www.w3.org/TR/WCAG22/), [Baseline](https://web.dev/baseline), and [Web Vitals](https://web.dev/articles/vitals). Record URLs, version/date checked and relevant requirements. Do not invent guide IDs or require external skills to exist.
+
+## Phase 2: Inspect and exercise
+
+| Area | Evidence to obtain |
+|---|---|
+| Browser security | Trace untrusted values to DOM, HTML, URL, CSS and script sinks; verify actual encoding/sanitizer configuration. Check postMessage origin and source, redirects, frame restrictions and third-party script integrity where applicable. |
+| Identity and data | Verify server-side permissions rather than trusting hidden controls; check CSRF, cookies, caching of private responses, token/PII exposure, client/server validation and safe error rendering. CORS and CSP are complementary controls. |
+| Headers and transport | Inspect deployed responses for TLS, CSP, frame-ancestors, content types, nosniff, referrer policy and contextual cache controls. Source config alone cannot establish deployed headers. Evaluate HSTS scope before recommending preload/includeSubDomains. |
+| Semantics and keyboard | Inspect the accessibility tree and test keyboard-only journeys, focus order/return/trapping, labels, error association, live status updates and native control behavior. Authentication must permit password managers and paste. |
+| Visual accessibility | Check zoom/reflow, text and non-text contrast, target size, obscured focus, reduced motion and forced colors where relevant. Automated tools cover only a subset of WCAG. |
+| Compatibility | Match features to the browser policy, feature-detect where necessary, verify progressive enhancement and fallbacks. Check SSR guards, hydration and per-instance IDs. |
+| Performance | Measure actual routes and interactions with device/network/build conditions. Inspect LCP resources, image dimensions, layout shifts, long tasks and expensive handlers. Distinguish lab samples from field data. |
+
+Core Web Vitals targets, checked 2026-11-16: LCP <= 2.5 s, INP <= 200 ms, CLS <= 0.1 at the 75th percentile, evaluated separately for mobile and desktop. Recheck current primary guidance before a future audit. A Lighthouse score or one local run cannot establish field INP or population-wide conformance.
+
+If browser tools, a running app, or deployment access are unavailable, finish useful source review and mark behavioral/deployed checks `not_run`; never convert them to passes. Do not start a server or install browsers/dependencies unless authorized by the task/environment.
+
+## Phase 3: Evidence and handoff
+
+Write `.zentra/web-audit.md` with scope, guidance references, checks, environment, receipts, limitations and separate security/accessibility/performance findings. Record candidate IDs, source path/line/hash or captured-response receipt, expected behavior, observed behavior, affected journey and suggested correction. Keep usability issues distinct from exploitable security defects and explain severity from impact.
+
+When used by a pipeline, return records to the coordinator; do not concurrently edit shared findings or config. Send candidates and the check inventory to zentra-verify. Screenshots support visual observations; they do not establish authorization, sanitizer correctness or complete accessibility conformance.

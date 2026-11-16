@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zentra Threat Model"
+  short_description: "Map attack surface with STRIDE"
+  default_prompt: "Use $zentra-threat-model to build a STRIDE threat model for this codebase."

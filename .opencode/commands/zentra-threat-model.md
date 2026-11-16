@@ -1,5 +1,5 @@
 ---
-description: "STRIDE threat modeling with attack surface mapping"
+description: "Model STRIDE threats, attack surfaces and trust boundaries from repository evidence, including agent/MCP capabilities and abuse cases. Produces a scoped threat model and verification priorities."
 ---
 
-Load and execute the zentra-threat-model skill. Perform STRIDE threat modeling on this codebase — analyze the architecture, identify trust boundaries, map the attack surface, and produce a threat model in .zentra/threat-model/. $ARGUMENTS
+Load and execute the zentra-threat-model skill. $ARGUMENTS

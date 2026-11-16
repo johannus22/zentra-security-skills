@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zentra IaC Scan"
+  short_description: "Check Docker, IaC, and CI risks"
+  default_prompt: "Use $zentra-iac-scan to review this repo's Docker, IaC, and CI/CD security posture."

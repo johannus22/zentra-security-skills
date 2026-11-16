@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zentra Web Audit"
+  short_description: "Check web security, accessibility and browser practices"
+  default_prompt: "Use $zentra-web-audit on this project for the requested scope."

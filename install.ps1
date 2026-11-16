@@ -56,8 +56,10 @@ $hasCodex = ($null -ne (Get-Command codex -ErrorAction SilentlyContinue)) -or (T
 $codexExists = $false
 
 if ($hasCodex) {
-    $codexZentraCheck = Join-Path $env:USERPROFILE ".codex\zentra"
-    if ((Test-Path $codexZentraCheck) -and (Get-ChildItem -Path $codexZentraCheck -Filter "zentra-*.md" -ErrorAction SilentlyContinue).Count -gt 0) {
+    $codexSkillCheck = Join-Path $env:USERPROFILE ".codex\skills\zentra-code-recon"
+    $codexPluginCheck = Join-Path $env:USERPROFILE "plugins\zentra"
+    $codexLegacyCheck = Join-Path $env:USERPROFILE ".codex\zentra"
+    if ((Test-Path $codexSkillCheck) -or (Test-Path $codexPluginCheck) -or ((Test-Path $codexLegacyCheck) -and (Get-ChildItem -Path $codexLegacyCheck -Filter "zentra-*.md" -ErrorAction SilentlyContinue).Count -gt 0)) {
         $codexExists = $true
     }
 }
@@ -182,10 +184,15 @@ if ($installCursor) {
 }
 
 if ($installCodex) {
-    $codexSkillDir = Join-Path $ZentraDir ".codex"
-    if (Test-Path $codexSkillDir) {
-        $totalSteps += (Get-ChildItem -Path $codexSkillDir -Filter "zentra-*.md").Count + 1
+    $codexNativeSkillDir = Join-Path $ZentraDir "skills"
+    $codexLegacySkillDir = Join-Path $ZentraDir ".codex"
+    if (Test-Path $codexNativeSkillDir) {
+        $totalSteps += (Get-ChildItem -Path $codexNativeSkillDir -Directory -Filter "zentra-*").Count
     }
+    if (Test-Path $codexLegacySkillDir) {
+        $totalSteps += (Get-ChildItem -Path $codexLegacySkillDir -Filter "zentra-*.md").Count
+    }
+    $totalSteps += 3
 }
 
 # --- Silent install functions ---
@@ -251,10 +258,84 @@ function Install-Cursor {
             $script:currentStep++
             Show-Progress -Current $script:currentStep -Total $totalSteps
         }
+        # Flat rules carry adjacent validator/reference resources.
+        Get-ChildItem -LiteralPath $zentraMdcDir -Directory -Filter "zentra-*" | ForEach-Object {
+            Copy-Item -LiteralPath $_.FullName -Destination $cursorRulesDir -Recurse -Force
+        }
     }
 }
 
 function Install-Codex {
+    $codexSkillsDir = Join-Path $env:USERPROFILE ".codex\skills"
+    New-Item -ItemType Directory -Path $codexSkillsDir -Force | Out-Null
+
+    Get-ChildItem -Path (Join-Path $ZentraDir "skills") -Directory -Filter "zentra-*" | ForEach-Object {
+        $skillTarget = Join-Path $codexSkillsDir $_.Name
+        if (Test-Path $skillTarget) {
+            Remove-Item $skillTarget -Recurse -Force -Confirm:$false
+        }
+        New-Item -ItemType Junction -Path $skillTarget -Target $_.FullName | Out-Null
+        $script:currentStep++
+        Show-Progress -Current $script:currentStep -Total $totalSteps
+    }
+
+    $pluginsDir = Join-Path $env:USERPROFILE "plugins"
+    New-Item -ItemType Directory -Path $pluginsDir -Force | Out-Null
+    $pluginTarget = Join-Path $pluginsDir "zentra"
+    if (Test-Path $pluginTarget) {
+        Remove-Item $pluginTarget -Recurse -Force -Confirm:$false
+    }
+    New-Item -ItemType Junction -Path $pluginTarget -Target $ZentraDir | Out-Null
+    $script:currentStep++
+    Show-Progress -Current $script:currentStep -Total $totalSteps
+
+    $agentsPluginsDir = Join-Path $env:USERPROFILE ".agents\plugins"
+    New-Item -ItemType Directory -Path $agentsPluginsDir -Force | Out-Null
+    $marketplacePath = Join-Path $agentsPluginsDir "marketplace.json"
+    if (Test-Path $marketplacePath) {
+        $marketplace = Get-Content $marketplacePath -Raw | ConvertFrom-Json
+    } else {
+        $marketplace = [pscustomobject]@{
+            name = "local-marketplace"
+            interface = [pscustomobject]@{
+                displayName = "Local Plugins"
+            }
+            plugins = @()
+        }
+    }
+
+    if (-not $marketplace.PSObject.Properties.Match("name")) {
+        $marketplace | Add-Member -NotePropertyName name -NotePropertyValue "local-marketplace"
+    }
+    if (-not $marketplace.PSObject.Properties.Match("interface") -or $null -eq $marketplace.interface) {
+        $marketplace | Add-Member -NotePropertyName interface -NotePropertyValue ([pscustomobject]@{
+            displayName = "Local Plugins"
+        }) -Force
+    } elseif (-not $marketplace.interface.PSObject.Properties.Match("displayName")) {
+        $marketplace.interface | Add-Member -NotePropertyName displayName -NotePropertyValue "Local Plugins"
+    }
+    if (-not $marketplace.PSObject.Properties.Match("plugins") -or $null -eq $marketplace.plugins) {
+        $marketplace | Add-Member -NotePropertyName plugins -NotePropertyValue @() -Force
+    }
+
+    $existingPlugins = @($marketplace.plugins | Where-Object { $_.name -ne "zentra" })
+    $existingPlugins += [pscustomobject]@{
+        name = "zentra"
+        source = [pscustomobject]@{
+            source = "local"
+            path = "./plugins/zentra"
+        }
+        policy = [pscustomobject]@{
+            installation = "AVAILABLE"
+            authentication = "ON_INSTALL"
+        }
+        category = "Security"
+    }
+    $marketplace.plugins = $existingPlugins
+    $marketplace | ConvertTo-Json -Depth 8 | Set-Content -Path $marketplacePath -Encoding utf8
+    $script:currentStep++
+    Show-Progress -Current $script:currentStep -Total $totalSteps
+
     $codexZentraDir = Join-Path $env:USERPROFILE ".codex\zentra"
     New-Item -ItemType Directory -Path $codexZentraDir -Force | Out-Null
 
@@ -264,6 +345,9 @@ function Install-Codex {
             Copy-Item $_.FullName -Destination (Join-Path $codexZentraDir $_.Name) -Force
             $script:currentStep++
             Show-Progress -Current $script:currentStep -Total $totalSteps
+        }
+        Get-ChildItem -LiteralPath $zentraCodexDir -Directory -Filter "zentra-*" | ForEach-Object {
+            Copy-Item -LiteralPath $_.FullName -Destination $codexZentraDir -Recurse -Force
         }
     }
 
@@ -329,4 +413,4 @@ Write-Host "  /zentra-dev           - Quick scan of changed files"
 Write-Host "  /zentra               - Show pipeline status"
 Write-Host ""
 Write-Host "Cursor IDE: Ask the AI 'run zentra-code-recon' - rules are now in ~/.cursor/rules/"
-Write-Host "Codex CLI: Ask the AI 'run zentra-code-recon' - full skill files are in ~/.codex/zentra/"
+Write-Host "Codex CLI: Ask the AI 'run zentra-code-recon' - native skills are in ~/.codex/skills/ and the plugin is linked at ~/plugins/zentra"

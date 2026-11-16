@@ -1,5 +1,29 @@
 # Changelog
 
+## [3.0.0] - 2026-11-16
+
+### Added
+- Canonical VERSION file, synchronized semantic version tooling and changelog-derived release notes.
+- GitHub validation and draft release workflows with tag/version checks, packaged assets and SHA-256 checksums.
+- `zentra-secure-code`: secure implementation patterns, explicit security invariants and positive/abuse-case verification.
+- `zentra-verify`: fresh adversarial/final reviews, candidate dispositions, versioned evidence records and a standard-library Python acceptance gate.
+- `zentra-web-audit`: browser security, WCAG 2.2, supported-browser fallbacks and measured performance checks.
+- Strict source/receipt/review-digest checks, selected audit control inventory, coverage tracking and fail-closed exit codes; isolated regression tests.
+- Generated platform adapters/resources and framework consistency checks, including installer delivery of validator resources to flat legacy adapters.
+
+### Changed
+- Release metadata and installation links now target johannus22/zentra-security-skills; the remote Apache-2.0 license is retained alongside the original MIT notice.
+- Updated source risk taxonomy to OWASP Top 10:2025 and secure coding guidance to ASVS 5.0.0; retained explicitly versioned API Top 10:2023.
+- Scanners produce candidates for independent verification; only one coordinator publishes shared pipeline artifacts.
+- Tool/provider failures and missing required coverage remain incomplete; zero findings cannot bypass overall evidence review.
+- Remediation requires behavioral regression evidence and fresh review; grep disappearance never verifies a fix.
+- Audits require affirmative evidence and distinguish satisfied, unsatisfied, not_assessed and not_applicable; reports no longer infer compliance from absent findings or discount unverified fixes.
+- Dev review includes staged/unstaged/untracked files, HTML/CSS, lockfiles and configuration; removed unverified hook API examples.
+
+### Migration
+- Legacy Markdown findings must be reverified before strict acceptance. Verification v1 is a skill-pack protocol, not the separate zentra-cli wire format or runtime enforcement.
+
+
 ## [2.1.0] — 2026-04-22
 
 ### Added

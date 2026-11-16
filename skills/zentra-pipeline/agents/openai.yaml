@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zentra Pipeline"
+  short_description: "Run the full security pipeline"
+  default_prompt: "Use $zentra-pipeline to orchestrate the full Zentra assessment for this project."

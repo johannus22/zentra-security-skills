@@ -1,5 +1,5 @@
 ---
-description: "Infrastructure-as-code security scanner (Docker, Terraform, K8s, CI/CD)"
+description: "Review Docker, Terraform, Kubernetes, Helm and CI/CD security using effective configuration and least-privilege evidence. Produces candidates and coverage; never applies infrastructure changes."
 ---
 
-Load and execute the zentra-iac-scan skill. Scan infrastructure-as-code files for security misconfigurations — Dockerfiles, Terraform, Kubernetes manifests, Helm charts, and CI/CD pipelines. $ARGUMENTS
+Load and execute the zentra-iac-scan skill. $ARGUMENTS

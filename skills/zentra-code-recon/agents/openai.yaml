@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zentra Code Recon"
+  short_description: "Scan code for OWASP Top 10"
+  default_prompt: "Use $zentra-code-recon to scan this codebase for OWASP Top 10 issues."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zentra Supply Chain"
+  short_description: "Inspect deps, CVEs, and licenses"
+  default_prompt: "Use $zentra-supply-chain to inspect dependencies, CVEs, and supply chain risk in this project."

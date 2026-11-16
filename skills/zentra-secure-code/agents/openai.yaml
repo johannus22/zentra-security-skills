@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zentra Secure Coding"
+  short_description: "Build features with secure defaults and abuse-case checks"
+  default_prompt: "Use $zentra-secure-code on this project for the requested scope."

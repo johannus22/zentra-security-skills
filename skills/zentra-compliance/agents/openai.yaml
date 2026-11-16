@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zentra Compliance"
+  short_description: "Map findings to compliance controls"
+  default_prompt: "Use $zentra-compliance to map Zentra findings to the right compliance frameworks."

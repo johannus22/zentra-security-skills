@@ -1,0 +1,20 @@
+{
+  "name": "zentra-local",
+  "interface": {
+    "displayName": "Zentra Local"
+  },
+  "plugins": [
+    {
+      "name": "zentra",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Security"
+    }
+  ]
+}

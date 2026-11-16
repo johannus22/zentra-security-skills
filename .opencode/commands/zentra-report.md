@@ -1,5 +1,5 @@
 ---
-description: "Executive security report with risk scoring and trends"
+description: "Generate security/audit summaries from current validated evidence, separating candidate dispositions, coverage gaps, remediation states and control assurance. Incomplete verification cannot yield a clean rating."
 ---
 
-Load and execute the zentra-report skill. Generate an executive summary with risk scores, trend analysis, compliance status, and remediation progress from all .zentra/ artifacts. $ARGUMENTS
+Load and execute the zentra-report skill. $ARGUMENTS

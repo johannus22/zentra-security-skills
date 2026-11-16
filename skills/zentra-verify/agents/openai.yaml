@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zentra Independent Verification"
+  short_description: "Verify agent changes and audit evidence with a strict gate"
+  default_prompt: "Use $zentra-verify on this project for the requested scope."

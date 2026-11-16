@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zentra Report"
+  short_description: "Generate an executive risk report"
+  default_prompt: "Use $zentra-report to generate an executive security summary from Zentra artifacts."

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Zentra Remediate"
+  short_description: "Generate and apply secure patches"
+  default_prompt: "Use $zentra-remediate to turn existing Zentra findings into reviewed code patches."
+
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zentra API Scan"
+  short_description: "Review APIs for OWASP API risks"
+  default_prompt: "Use $zentra-api-scan to analyze this repo for OWASP API Security issues."
