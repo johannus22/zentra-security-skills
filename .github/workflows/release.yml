@@ -38,9 +38,7 @@ jobs:
           mkdir release-artifacts
           python scripts/version.py notes > release-notes.md
           npm pack --ignore-scripts --pack-destination release-artifacts
-      - name: Compute package checksum
-        working-directory: release-artifacts
-        run: sha256sum *.tgz > SHA256SUMS
+          python scripts/build_release.py --output-dir release-artifacts --notes-file release-notes.md
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: release-bundle
@@ -73,7 +71,7 @@ jobs:
           flags=()
           if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi
           gh release create "$RELEASE_TAG" \
-            release-artifacts/*.tgz release-artifacts/SHA256SUMS \
+            release-artifacts/*.tgz release-artifacts/*.zip release-artifacts/*.pyz release-artifacts/SHA256SUMS \
             --repo "$GITHUB_REPOSITORY" --verify-tag --draft \
             --title "Zentra Security Skills $RELEASE_TAG" \
             --notes-file release-notes.md "${flags[@]}"

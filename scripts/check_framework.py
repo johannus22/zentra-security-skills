@@ -16,6 +16,9 @@ def main():
     package = json.loads((ROOT / "package.json").read_text(encoding="utf-8-sig"))
     if package.get("pi", {}).get("skills") != ["./skills"] or "pi-package" not in package["keywords"]:
         errors.append("Pi package must expose canonical ./skills and declare the pi-package keyword")
+    for script in ("install_skills.py", "release_installer.py", "build_release.py"):
+        if not (ROOT / "scripts" / script).is_file():
+            errors.append(f"Missing release installation helper: {script}")
     for folder in skills:
         source = (folder / "SKILL.md").read_text(encoding="utf-8-sig")
         try:

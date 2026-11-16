@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.2.0] - 2026-11-16
+
+### Added
+- A self-contained offline release installer ZIP with a Windows double-click launcher, macOS/Linux launcher and all 14 skills bundled in a portable Python application.
+- Native-skill installation for Claude Code, Codex, Cursor and OpenCode alongside Pi, DeepSeek Harness, Kimi Code, Gemini CLI, Qwen Code and shared Agent Skills.
+- Interactive harness selection, unattended installation flags and checksums for the ZIP, Python application and existing package.
+- Offline installation, launcher, resource-lifetime and archive-validation regression tests.
+
+### Changed
+- Getting started now begins at GitHub Releases and requires no repository clone, Git, npm or network connection during installation; Python 3.11+ remains required.
+- Release packaging builds and uploads the offline installers with every versioned release.
+
 ## [3.1.0] - 2026-11-16
 
 ### Added

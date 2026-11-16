@@ -73,3 +73,5 @@ The sync script derives flat Codex/Cursor adapters, OpenCode commands and adjace
 | Shared Agent Skills | Complete bundles in `~/.agents/skills/` for compatible hosts |
 
 New native targets also support project-local roots. See [HARNESS_SUPPORT.md](HARNESS_SUPPORT.md) for environment overrides, invocation, update ownership and testing boundaries. Native installation must preserve bundled verifier scripts/references and existing model/provider configuration. Do not invent harness-specific commands or claim independent review when fresh sessions are unavailable.
+
+The default download is the self-contained release ZIP built by `scripts/build_release.py`. Its Python application copies native skills and runs offline without a checkout, Git or npm. Preserve license notices and verifier resources in the application and ZIP. The release installer adds native Claude/Codex/Cursor/OpenCode profiles separately from source-checkout plugin/rule integrations. Test generated applications and launchers in disposable profiles before release.

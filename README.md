@@ -2,11 +2,30 @@
 
 Security and secure coding skills for AI coding agents. Zentra helps agents build securely, challenge their own findings through independent review, and support technical audits with checked evidence.
 
-**Version 3.1.0 · 14 skills · Claude Code, OpenCode, Cursor, Codex, Pi, DeepSeek Harness, Kimi Code, Gemini CLI and Qwen Code**
+**Version 3.2.0 · 14 skills · Claude Code, OpenCode, Cursor, Codex, Pi, DeepSeek Harness, Kimi Code, Gemini CLI and Qwen Code**
 
 ## Getting started
 
-Install a supported agent, clone this repository, then run the installer for your operating system. Choose your agent or **All** from the detected options.
+1. Go to [the latest release](https://github.com/johannus22/zentra-security-skills/releases/latest) and download **[zentra-installer.zip](https://github.com/johannus22/zentra-security-skills/releases/latest/download/zentra-installer.zip)** from Assets.
+2. Extract the ZIP completely.
+3. **Windows:** double-click `Install-Zentra.cmd` inside the extracted `zentra` folder. **macOS / Linux:** open a terminal in that folder and run `bash install.sh`.
+4. Choose your coding harness from the menu. Select several by separating their numbers or names with commas.
+
+The installer includes all 14 skills and their verifier resources. Installation works offline and needs **Python 3.11+**, with no Git, npm, or checkout to keep around. You can delete the extracted folder after installation.
+
+The release also provides a single `zentra-installer.pyz` file for terminal use:
+
+```text
+python zentra-installer.pyz --target pi --target kimi
+python zentra-installer.pyz --target codex --dry-run
+python zentra-installer.pyz --target agents --scope project --project-root /path/to/project
+```
+
+Use `python3` on macOS/Linux if that is your Python command. Each release includes `SHA256SUMS` for checking downloaded assets. See the [harness support guide](HARNESS_SUPPORT.md) for native locations and safe updates.
+
+### Source installation (optional)
+
+Contributors and users who want the existing plugin/rule integrations can use a checkout:
 
 **macOS / Linux**
 
@@ -166,7 +185,7 @@ Existing config keys are preserved, including normalization of legacy `exclude` 
 
 ## Platform setup
 
-The [installer](#getting-started) detects supported agents and installs the selected integrations:
+The release installer copies native skill bundles. Source-checkout installers also offer plugin links, legacy rules and slash-command wrappers:
 
 | Platform | Installed assets |
 |---|---|
@@ -210,7 +229,9 @@ Ask the agent to run a skill by name, such as `Run zentra-verify on the final ch
 
 ### Updating an existing installation
 
-From your Zentra checkout, fetch the desired framework changes using your normal Git workflow, then rerun `bash install.sh` or `.\install.ps1`. Rerunning the installer registers newly added skill folders and refreshes copied commands, rules and verifier resources. If your agent has cached discovery, start a fresh session after updating.
+For a release installation, download the latest `zentra-installer.zip` and run its launcher again. Managed skills are updated after checking their saved hashes; locally edited or unmanaged conflicts are left untouched. Start a fresh agent session if discovery is cached.
+
+For source-linked integrations, update the checkout using your normal Git workflow and rerun `bash install.sh` or `.\install.ps1`. Existing source links are not silently replaced by the release installer; update them through their original checkout, or choose another compatible skills root.
 
 ### Browser and dynamic testing tools
 

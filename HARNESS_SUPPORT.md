@@ -5,6 +5,50 @@ Each bundle includes its `SKILL.md`, scripts, references and optional metadata.
 Installation does not configure a provider, copy API credentials or launch an
 agent. The same skills work with whichever model the selected harness supports.
 
+## Install from Releases (recommended)
+
+Download [zentra-installer.zip](https://github.com/johannus22/zentra-security-skills/releases/latest/download/zentra-installer.zip)
+from the [latest release](https://github.com/johannus22/zentra-security-skills/releases/latest)
+and extract it. On Windows, double-click `Install-Zentra.cmd` in its `zentra`
+folder. On macOS/Linux, run `bash install.sh` there. Choose one or more harnesses
+from the menu using comma-separated numbers or names.
+
+Python 3.11+ is required. Installation is offline and uses no Git, npm, or checkout
+to keep around. All skill resources are copied, so you can delete the extracted
+installer folder afterward. Git is still needed by the source-verification gate
+when it assesses a repository.
+
+The release also provides `zentra-installer.pyz` for direct terminal use:
+
+```text
+python zentra-installer.pyz
+python zentra-installer.pyz --target claude --target opencode
+python zentra-installer.pyz --target pi --target kimi --dry-run
+python zentra-installer.pyz --target agents --scope project --project-root /path/to/project
+python zentra-installer.pyz --list
+```
+
+Use `python3` where appropriate. The release application's additional targets are:
+
+| Target | User root | Project root |
+|---|---|---|
+| `claude` | `~/.claude/skills/` (honors `CLAUDE_CONFIG_DIR`) | `.claude/skills/` |
+| `codex` | `~/.agents/skills/` | `.agents/skills/` |
+| `cursor` | `~/.cursor/skills/` | `.cursor/skills/` |
+| `opencode` | `~/.config/opencode/skills/` | `.opencode/skills/` |
+
+These roots follow [Claude Code](https://code.claude.com/docs/en/skills),
+[Codex](https://learn.chatgpt.com/docs/build-skills),
+[Cursor](https://cursor.com/docs/skills) and [OpenCode](https://opencode.ai/docs/skills/)
+native discovery. Source-checkout plugin and legacy rule integrations remain
+available below. The release application does not register plugins, add legacy
+slash wrappers, or rewrite configuration. Ask the host to load a skill by name
+or use its native skill catalog. A pre-existing source-linked/unmanaged skill is
+preserved; update its checkout or choose another supported root if it conflicts.
+
+To update, download the latest installer and run it again. Checksums for both
+downloads are published in `SHA256SUMS`.
+
 ## Native skill targets
 
 The following layouts were checked against primary documentation on 2026-11-16.
@@ -32,7 +76,7 @@ Primary references: [Pi skills](https://github.com/earendil-works/pi/blob/main/p
 [Gemini CLI skills](https://geminicli.com/docs/cli/skills/),
 [Qwen Code skills](https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/).
 
-## Install without an interactive menu
+## Install from a source checkout (optional)
 
 From the Zentra checkout, with Python 3.11+ available:
 

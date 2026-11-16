@@ -88,7 +88,8 @@ def detected(home=None, environ=None, which=shutil.which):
         if name == "agents":
             continue  # Shared discovery is an explicit choice, never a duplicate in All.
         root = destination(name, home=home, environ=environ)
-        if any(which(command) for command in profile["commands"]) or root.parent.is_dir():
+        profile_root = (Path.home() if home is None else Path(home)) / profile["detect_dir"] if "detect_dir" in profile else root.parent
+        if any(which(command) for command in profile["commands"]) or profile_root.is_dir():
             result.append(name)
     return result
 
@@ -193,7 +194,29 @@ def apply_plans(plans):
         atomic_write(safe_child(target, MARKER), (json.dumps(marker, indent=2, sort_keys=True) + "\n").encode("utf-8"))
 
 
-def main(argv=None):
+def choose_targets(found):
+    names = list(HARNESSES)
+    print("\nChoose where to install Zentra:")
+    for index, name in enumerate(names, 1):
+        status = " (detected)" if name in found else ""
+        print(f"  {index}) {HARNESSES[name]['label']}{status}")
+    print("  a) All detected harnesses\n  0) Cancel")
+    raw = input("Select numbers or names, separated by commas: ").strip().lower()
+    if raw in ("", "0", "cancel"):
+        return []
+    if raw in ("a", "all"):
+        return ["all"]
+    result = []
+    for token in raw.split(","):
+        token = token.strip()
+        if token.isdigit() and 1 <= int(token) <= len(names):
+            token = names[int(token) - 1]
+        require(token in HARNESSES, f"Unknown selection: {token}")
+        result.append(token)
+    return result
+
+
+def main(argv=None, *, interactive=False):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target", action="append", choices=(*HARNESSES, "all"), help="repeat to install for multiple harnesses; all selects detected native harnesses")
     parser.add_argument("--scope", choices=("user", "project"), default="user")
@@ -218,6 +241,11 @@ def main(argv=None):
                               for name, profile in HARNESSES.items()], indent=2))
             return 0
         targets = args.target or (["agents"] if args.skills_dir else [])
+        if not targets and interactive:
+            targets = choose_targets(found)
+            if not targets:
+                print("Cancelled. No skills installed.")
+                return 0
         require(targets, "Select --target pi, deepseek, kimi, gemini, qwen or agents; use --list to inspect destinations")
         require("all" not in targets or len(targets) == 1, "--target all cannot be combined with another target")
         if targets == ["all"]:
@@ -225,7 +253,7 @@ def main(argv=None):
             require(targets, "No native harness detected; choose an explicit --target or --target agents")
         targets = list(dict.fromkeys(targets))
         require(args.skills_dir is None or len(targets) == 1, "--skills-dir requires one target")
-        bundles = payloads()
+        bundles = payloads(ROOT)
         plans = []
         destinations = []
         for name in targets:
@@ -243,6 +271,9 @@ def main(argv=None):
         return 0
     except (InstallError, OSError, ValueError, KeyError, TypeError) as error:
         print(f"Installation stopped: {error}", file=sys.stderr)
+        return 1
+    except (EOFError, KeyboardInterrupt):
+        print("No selection received. Use --target for unattended installation.", file=sys.stderr)
         return 1
 
 

@@ -1,6 +1,6 @@
 {
   "name": "zentra-security",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Security and secure coding framework for AI agents. 14 skills with independent change verification, modern web audits, evidence-based compliance and fail-closed acceptance gates.",
   "keywords": [
     "security",

@@ -50,10 +50,18 @@ tag; prepare a new version for corrections. Prerelease versions use tags such as
 
 The tag workflow validates the framework on Windows/Linux and Python 3.11/3.13,
 checks that the tag matches all manifests and the changelog, and builds a `.tgz`
-package with SHA-256 checksums. It then creates a **draft GitHub release** with
+package, a self-contained `zentra-installer.pyz`, a friendly `zentra-installer.zip`
+with Windows/macOS/Linux launchers, and SHA-256 checksums for all assets. It then creates a **draft GitHub release** with
 changelog notes and assets. Open the draft in the repository's Releases page,
 review it, and publish it when ready. Prerelease tags are marked as prereleases.
 There is no automatic npm publication.
+
+Build the standalone installers locally with
+`python scripts/build_release.py --output-dir release-artifacts`. The builder uses
+the checked version, canonical skills and standard Python library. Test generated
+applications and extracted launchers in disposable profiles before publishing.
+Installation must work from an empty workspace with no Git or npm on PATH. No
+provider credentials or user configuration belong in the release bundle.
 
 Workflow actions are pinned to commit hashes. Validation and packaging use read
 permissions; only the final draft job has `contents: write`, and that job does
